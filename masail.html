@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5">
+<title>মাসায়েল — শরয়ী প্রশ্নোত্তর | দ্বীনপথ</title>
+<meta name="description" content="দৈনন্দিন জীবনের শরয়ী মাসায়েল ও প্রশ্নোত্তর। নামাজ, রোজা, পবিত্রতা, পরিবার বিষয়ক বিধান।">
+<meta name="theme-color" content="#0b3024">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Tiro+Bangla:ital@0;1&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<style>
+  .masail-accordion { display: flex; flex-direction: column; gap: 12px; max-width: 760px; margin: 0 auto; }
+  .acc-item { background: var(--white); border: 1px solid var(--bone-200); border-radius: var(--radius-md); overflow: hidden; }
+  .acc-head { width: 100%; text-align: right; padding: 18px 22px; display: flex; justify-content: space-between; align-items: center; background: none; border: none; gap: 12px; }
+  .acc-head .q { font-weight: 700; color: var(--ink-900); font-size: 0.98rem; }
+  .acc-icon { flex-shrink: 0; color: var(--green-700); transition: transform 0.2s; font-size: 1.1rem; }
+  .acc-item.open .acc-icon { transform: rotate(45deg); }
+  .acc-body { max-height: 0; overflow: hidden; transition: max-height 0.25s ease; }
+  .acc-item.open .acc-body { max-height: 600px; }
+  .acc-body-inner { padding: 0 22px 20px; color: var(--ink-700); line-height: 1.85; font-size: 0.95rem; border-top: 1px solid var(--bone-200); padding-top: 16px; }
+
+  .ask-section {
+    background: var(--green-900); border-radius: var(--radius-lg); padding: 40px 30px; color: var(--white);
+    max-width: 760px; margin: 50px auto 0; position: relative; overflow: hidden;
+  }
+  .ask-section h2 { color: var(--white); margin-bottom: 8px; }
+  .ask-section p { color: rgba(255,255,255,0.7); margin-bottom: 24px; }
+  .ask-form { display: flex; flex-direction: column; gap: 14px; position: relative; z-index: 2; }
+  .ask-form select, .ask-form textarea, .ask-form input {
+    width: 100%; padding: 13px 16px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.18);
+    background: rgba(255,255,255,0.07); color: var(--white); font-family: var(--font-body); font-size: 0.95rem; outline: none;
+  }
+  .ask-form select option { color: var(--ink-900); }
+  .ask-form textarea { resize: vertical; min-height: 100px; }
+  .ask-form input::placeholder, .ask-form textarea::placeholder { color: rgba(255,255,255,0.45); }
+</style>
+</head>
+<body>
+
+<section class="page-hero">
+  <div class="octagon-pattern"></div>
+  <div class="container">
+    <div class="breadcrumb"><a href="index.html">হোম</a> / মাসায়েল</div>
+    <h1>⚖️ মাসায়েল</h1>
+    <p>দৈনন্দিন জীবনের শরয়ী প্রশ্ন ও বিধান — বিষয় অনুযায়ী সাজানো।</p>
+  </div>
+</section>
+
+<section class="section-tight">
+  <div class="container">
+    <div class="masail-accordion" id="masailAccordion"></div>
+
+    <div class="ask-section" id="ask">
+      <div class="octagon-pattern" style="opacity:0.06;"></div>
+      <h2>আপনার প্রশ্ন জিজ্ঞাসা করুন</h2>
+      <p>আপনার ব্যক্তিগত শরয়ী জিজ্ঞাসা পাঠান। বিজ্ঞ আলেমগণ পরবর্তীতে উত্তর প্রদান করবেন।</p>
+      <form class="ask-form" id="askForm">
+        <select required id="askCategory">
+          <option value="" disabled selected>বিষয় নির্বাচন করুন</option>
+        </select>
+        <textarea required id="askQuestion" placeholder="আপনার প্রশ্নটি বিস্তারিত লিখুন..."></textarea>
+        <input type="text" id="askName" placeholder="আপনার নাম (ঐচ্ছিক)">
+        <button type="submit" class="btn btn-primary">প্রশ্ন জমা দিন</button>
+      </form>
+    </div>
+  </div>
+</section>
+
+<script src="data.js"></script>
+<script src="common.js"></script>
+<script>
+const MASAIL_QA = [
+  { cat:"নামাজ", q:"নামাজে ভুলে কোনো রাকাত বাদ পড়লে কী করবেন?", a:"স্মরণ হওয়ার সাথে সাথে বাদ পড়া রাকাত আদায় করে শেষে সাহু সিজদা দিতে হবে। নামাজ শেষ হওয়ার পরে স্মরণ হলে, ওয়াক্ত পার না হয়ে থাকলে পুনরায় নামাজ পড়তে হবে। এই বিষয়ে স্থানীয় আলেমের পরামর্শ নেওয়া উত্তম।" },
+  { cat:"নামাজ", q:"জামাতে নামাজ পড়া কি ফরজ?", a:"পুরুষদের জন্য জামাতে নামাজ পড়া অত্যন্ত গুরুত্বপূর্ণ ও মুস্তাহাবে মুআক্কাদা পর্যায়ের। অনেক আলেমের মতে বিনা কারণে জামাত ত্যাগ করা গুনাহের কাজ। অসুস্থতা বা অপারগতা থাকলে একা নামাজ পড়া যায়।" },
+  { cat:"রোজা ও সিয়াম", q:"রোজা অবস্থায় ভুলবশত পানাহার করলে রোজা ভাঙবে কি?", a:"না, ভুলবশত পানাহার করলে রোজা ভাঙে না। স্মরণ হওয়ার সাথে সাথে খাওয়া-দাওয়া বন্ধ করে রোজা চালিয়ে যেতে হবে। এটি আল্লাহর পক্ষ থেকে রহমত হিসেবে গণ্য।" },
+  { cat:"রোজা ও সিয়াম", q:"সফরে রোজা না রাখলে কাফফারা দিতে হবে কি?", a:"সফরে রোজা না রাখলে কাফফারা দিতে হয় না, বরং পরবর্তীতে কাজা (একই সংখ্যক রোজা) আদায় করতে হবে। কাফফারা কেবল ইচ্ছাকৃতভাবে রোজা ভঙ্গ করলে প্রযোজ্য হয়।" },
+  { cat:"পবিত্রতা", q:"ওযু অবস্থায় রক্ত বের হলে ওযু ভাঙবে কি?", a:"হানাফী মাযহাব অনুযায়ী, শরীরের কোনো স্থান থেকে রক্ত প্রবাহিত হয়ে গড়িয়ে পড়লে ওযু ভেঙে যায়। তবে শুধু রক্ত দেখা দিলে কিন্তু গড়িয়ে না পড়লে ওযু ভাঙে না।" },
+  { cat:"পবিত্রতা", q:"মোজা পরে ওযু করার নিয়ম কী?", a:"চামড়ার মোটা মোজা (যা পায়ে দীর্ঘ সময় ব্যবহারযোগ্য ও পানি প্রবেশ করে না) পরিহিত থাকলে নির্দিষ্ট সময়সীমার মধ্যে মোজার উপর মাসেহ করা যায়। সাধারণ পাতলা কাপড়ের মোজায় এই বিধান প্রযোজ্য নয়।" },
+  { cat:"যাকাত ও সদকা", q:"যাকাতের নিসাব কত?", a:"সোনার ক্ষেত্রে প্রায় ৮৭.৪৮ গ্রাম এবং রূপার ক্ষেত্রে প্রায় ৬১২.৩৬ গ্রামের মূল্যমান নিসাব। নগদ অর্থ ও ব্যবসায়িক সম্পদের ক্ষেত্রে সাধারণত রূপার নিসাব হিসাব করা হয়। সুনির্দিষ্ট হিসাবের জন্য আমাদের যাকাত ক্যালকুলেটর ব্যবহার করুন।" },
+  { cat:"বিবাহ ও পরিবার", q:"বিবাহের জন্য অভিভাবকের সম্মতি কি আবশ্যক?", a:"হানাফী মাযহাব অনুযায়ী প্রাপ্তবয়স্ক নারী নিজের সম্মতিতে বিবাহ করতে পারেন, তবে অভিভাবকের সম্মতি ও পারিবারিক সিদ্ধান্তে অংশগ্রহণ অত্যন্ত গুরুত্বপূর্ণ এবং সামাজিক ও শরয়ী দৃষ্টিকোণ থেকে সুপারিশযোগ্য।" },
+];
+
+function renderMasailList() {
+  const container = document.getElementById("masailAccordion");
+  container.innerHTML = MASAIL_QA.map((item, i) => `
+    <div class="acc-item" data-i="${i}">
+      <button class="acc-head">
+        <span class="q">${item.q}</span>
+        <span class="acc-icon">+</span>
+      </button>
+      <div class="acc-body">
+        <div class="acc-body-inner">
+          <span class="tag" style="margin-bottom:10px; display:inline-block;">${item.cat}</span>
+          <p>${item.a}</p>
+        </div>
+      </div>
+    </div>
+  `).join("");
+
+  container.querySelectorAll(".acc-item").forEach(item => {
+    item.querySelector(".acc-head").addEventListener("click", () => {
+      item.classList.toggle("open");
+    });
+  });
+}
+
+function populateCategorySelect() {
+  const sel = document.getElementById("askCategory");
+  HADITH_CATEGORIES.forEach(cat => {
+    const opt = document.createElement("option");
+    opt.value = cat;
+    opt.textContent = cat;
+    sel.appendChild(opt);
+  });
+}
+
+document.getElementById("askForm").addEventListener("submit", (e) => {
+  e.preventDefault();
+  showToast("আপনার প্রশ্ন গ্রহণ করা হয়েছে। উত্তর পেতে কিছুদিন অপেক্ষা করুন।");
+  e.target.reset();
+});
+
+renderMasailList();
+populateCategorySelect();
+</script>
+</body>
+</html>

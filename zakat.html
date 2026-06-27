@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5">
+<title>যাকাত ক্যালকুলেটর — নির্ভুল যাকাত হিসাব | দ্বীনপথ</title>
+<meta name="description" content="সোনা, রূপা, নগদ অর্থ ও ব্যবসায়িক সম্পদের উপর নির্ভুল যাকাত হিসাব করুন। বর্তমান বাজার মূল্য অনুযায়ী নিসাব নির্ধারণ।">
+<meta name="theme-color" content="#0b3024">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Tiro+Bangla:ital@0;1&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<style>
+  .zakat-layout { display: grid; grid-template-columns: 1.3fr 1fr; gap: 30px; align-items: start; }
+  @media (max-width: 900px) { .zakat-layout { grid-template-columns: 1fr; } }
+
+  .zakat-form-card { background: var(--white); border: 1px solid var(--bone-200); border-radius: var(--radius-lg); padding: 30px; }
+  .zform-group { margin-bottom: 20px; }
+  .zform-group label { display: block; font-weight: 700; font-size: 0.92rem; color: var(--ink-900); margin-bottom: 8px; }
+  .zform-group .hint { font-size: 0.78rem; color: var(--ink-500); margin-top: 5px; }
+  .zinput-row { display: flex; gap: 10px; }
+  .zinput-row input {
+    flex: 1; padding: 12px 16px; border-radius: 10px; border: 1px solid var(--bone-200);
+    font-family: var(--font-body); font-size: 0.95rem; outline: none;
+  }
+  .zinput-row input:focus { border-color: var(--gold-500); }
+  .zinput-row .unit-badge {
+    display: flex; align-items: center; padding: 0 16px; border-radius: 10px;
+    background: var(--tint-green); color: var(--green-800); font-weight: 700; font-size: 0.85rem; white-space: nowrap;
+  }
+  .price-note { background: var(--bone-100); border-radius: 10px; padding: 10px 14px; font-size: 0.8rem; color: var(--ink-500); margin-bottom: 22px; }
+
+  .zsection-divider { border-top: 1px dashed var(--bone-200); margin: 26px 0; }
+  .zsection-title { font-weight: 700; color: var(--green-800); font-size: 0.95rem; margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+
+  .result-card { background: linear-gradient(135deg, var(--green-800), var(--green-950)); color: var(--white); border-radius: var(--radius-lg); padding: 30px; position: sticky; top: 90px; }
+  .result-card h3 { color: var(--white); font-size: 1.1rem; margin-bottom: 4px; }
+  .result-card .sub { color: rgba(255,255,255,0.65); font-size: 0.85rem; margin-bottom: 24px; }
+  .result-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.1); font-size: 0.9rem; }
+  .result-row span:first-child { color: rgba(255,255,255,0.75); }
+  .result-row span:last-child { font-weight: 700; }
+  .result-total { margin-top: 18px; padding-top: 18px; text-align: center; }
+  .result-total .label { color: rgba(255,255,255,0.7); font-size: 0.85rem; margin-bottom: 6px; }
+  .result-total .amount { font-family: var(--font-display); font-size: 2.1rem; color: var(--gold-300); }
+  .nisab-status { margin-top: 18px; padding: 12px 16px; border-radius: 10px; text-align: center; font-weight: 700; font-size: 0.88rem; }
+  .nisab-status.eligible { background: rgba(201,160,77,0.2); color: var(--gold-300); }
+  .nisab-status.not-eligible { background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.6); }
+</style>
+</head>
+<body>
+
+<section class="page-hero">
+  <div class="octagon-pattern"></div>
+  <div class="container">
+    <div class="breadcrumb"><a href="index.html">হোম</a> / যাকাত ক্যালকুলেটর</div>
+    <h1>🧮 যাকাত ক্যালকুলেটর</h1>
+    <p>সোনা, রূপা, নগদ অর্থ ও ব্যবসায়িক সম্পদের উপর নির্ভুল যাকাত হিসাব করুন।</p>
+  </div>
+</section>
+
+<section class="section-tight">
+  <div class="container">
+    <div class="zakat-layout">
+      <div class="zakat-form-card">
+        <div class="zsection-title">📊 প্রতি গ্রাম বাজার মূল্য (টাকা)</div>
+        <div class="zform-group">
+          <label>সোনার মূল্য (প্রতি গ্রাম)</label>
+          <div class="zinput-row">
+            <input type="number" id="goldPrice" value="12500" min="0">
+            <span class="unit-badge">৳ / গ্রাম</span>
+          </div>
+        </div>
+        <div class="zform-group">
+          <label>রূপার মূল্য (প্রতি গ্রাম)</label>
+          <div class="zinput-row">
+            <input type="number" id="silverPrice" value="145" min="0">
+            <span class="unit-badge">৳ / গ্রাম</span>
+          </div>
+        </div>
+        <div class="price-note">⚠️ এই মূল্যগুলো আনুমানিক — হিসাবের আগে বর্তমান বাজার মূল্য দিয়ে সংশোধন করুন। নিসাব: সোনা ৮৭.৪৮ গ্রাম, রূপা ৬১২.৩৬ গ্রাম।</div>
+
+        <div class="zsection-divider"></div>
+        <div class="zsection-title">💰 আপনার সম্পদ</div>
+
+        <div class="zform-group">
+          <label>সোনার পরিমাণ</label>
+          <div class="zinput-row">
+            <input type="number" id="goldGram" placeholder="0" min="0">
+            <span class="unit-badge">গ্রাম</span>
+          </div>
+        </div>
+        <div class="zform-group">
+          <label>রূপার পরিমাণ</label>
+          <div class="zinput-row">
+            <input type="number" id="silverGram" placeholder="0" min="0">
+            <span class="unit-badge">গ্রাম</span>
+          </div>
+        </div>
+        <div class="zform-group">
+          <label>নগদ অর্থ (ব্যাংক ব্যালেন্স সহ)</label>
+          <div class="zinput-row">
+            <input type="number" id="cashAmount" placeholder="0" min="0">
+            <span class="unit-badge">৳</span>
+          </div>
+        </div>
+        <div class="zform-group">
+          <label>ব্যবসায়িক পণ্য/সম্পদের মূল্য</label>
+          <div class="zinput-row">
+            <input type="number" id="businessAmount" placeholder="0" min="0">
+            <span class="unit-badge">৳</span>
+          </div>
+          <div class="hint">বিক্রয়যোগ্য পণ্যের বাজার মূল্য (পাইকারি/বিক্রয় মূল্য)</div>
+        </div>
+        <div class="zform-group">
+          <label>প্রাপ্য ঋণ (যা ফেরত পাবেন)</label>
+          <div class="zinput-row">
+            <input type="number" id="receivableAmount" placeholder="0" min="0">
+            <span class="unit-badge">৳</span>
+          </div>
+        </div>
+
+        <div class="zsection-divider"></div>
+        <div class="zsection-title">➖ বাদ দিতে হবে</div>
+        <div class="zform-group">
+          <label>তাৎক্ষণিক পরিশোধযোগ্য ঋণ/দেনা</label>
+          <div class="zinput-row">
+            <input type="number" id="debtAmount" placeholder="0" min="0">
+            <span class="unit-badge">৳</span>
+          </div>
+        </div>
+
+        <button class="btn btn-primary btn-block" id="calcBtn" style="margin-top:10px;">যাকাত হিসাব করুন</button>
+      </div>
+
+      <div class="result-card">
+        <h3>হিসাবের ফলাফল</h3>
+        <div class="sub">নিচের তথ্য আপনার ইনপুট অনুযায়ী আপডেট হবে</div>
+        <div class="result-row"><span>সোনার মূল্য</span><span id="rGold">৳ ০</span></div>
+        <div class="result-row"><span>রূপার মূল্য</span><span id="rSilver">৳ ০</span></div>
+        <div class="result-row"><span>নগদ + প্রাপ্য</span><span id="rCash">৳ ০</span></div>
+        <div class="result-row"><span>ব্যবসায়িক সম্পদ</span><span id="rBusiness">৳ ০</span></div>
+        <div class="result-row"><span>মোট সম্পদ</span><span id="rGrossTotal">৳ ০</span></div>
+        <div class="result-row"><span>বাদ: দেনা</span><span id="rDebt">৳ ০</span></div>
+        <div class="result-row"><span>প্রযোজ্য নিসাব (রূপা ভিত্তিক)</span><span id="rNisab">৳ ০</span></div>
+        <div class="nisab-status" id="nisabStatus">হিসাব করতে উপরের বাটনে ক্লিক করুন</div>
+        <div class="result-total">
+          <div class="label">প্রদানযোগ্য যাকাত (২.৫%)</div>
+          <div class="amount" id="rZakatDue">৳ ০</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script src="data.js"></script>
+<script src="common.js"></script>
+<script>
+function fmtTaka(num) {
+  return "৳ " + toBnNumber(Math.round(num).toLocaleString("en-US"));
+}
+
+function calculateZakat() {
+  const goldPrice = parseFloat(document.getElementById("goldPrice").value) || 0;
+  const silverPrice = parseFloat(document.getElementById("silverPrice").value) || 0;
+  const goldGram = parseFloat(document.getElementById("goldGram").value) || 0;
+  const silverGram = parseFloat(document.getElementById("silverGram").value) || 0;
+  const cash = parseFloat(document.getElementById("cashAmount").value) || 0;
+  const business = parseFloat(document.getElementById("businessAmount").value) || 0;
+  const receivable = parseFloat(document.getElementById("receivableAmount").value) || 0;
+  const debt = parseFloat(document.getElementById("debtAmount").value) || 0;
+
+  const goldValue = goldGram * goldPrice;
+  const silverValue = silverGram * silverPrice;
+  const cashTotal = cash + receivable;
+  const grossTotal = goldValue + silverValue + cashTotal + business;
+  const netTotal = Math.max(0, grossTotal - debt);
+
+  const nisabValue = ZAKAT_NISAB_SILVER_GRAM * silverPrice;
+  const eligible = netTotal >= nisabValue && netTotal > 0;
+  const zakatDue = eligible ? netTotal * ZAKAT_RATE : 0;
+
+  document.getElementById("rGold").textContent = fmtTaka(goldValue);
+  document.getElementById("rSilver").textContent = fmtTaka(silverValue);
+  document.getElementById("rCash").textContent = fmtTaka(cashTotal);
+  document.getElementById("rBusiness").textContent = fmtTaka(business);
+  document.getElementById("rGrossTotal").textContent = fmtTaka(grossTotal);
+  document.getElementById("rDebt").textContent = fmtTaka(debt);
+  document.getElementById("rNisab").textContent = fmtTaka(nisabValue);
+  document.getElementById("rZakatDue").textContent = fmtTaka(zakatDue);
+
+  const statusEl = document.getElementById("nisabStatus");
+  if (netTotal <= 0) {
+    statusEl.className = "nisab-status not-eligible";
+    statusEl.textContent = "সম্পদের পরিমাণ লিখুন";
+  } else if (eligible) {
+    statusEl.className = "nisab-status eligible";
+    statusEl.textContent = "✓ আপনার সম্পদ নিসাব পরিমাণের বেশি — যাকাত ফরজ";
+  } else {
+    statusEl.className = "nisab-status not-eligible";
+    statusEl.textContent = "আপনার সম্পদ নিসাবের কম — যাকাত ফরজ নয়";
+  }
+}
+
+document.getElementById("calcBtn").addEventListener("click", calculateZakat);
+document.querySelectorAll(".zakat-form-card input").forEach(input => {
+  input.addEventListener("input", calculateZakat);
+});
+
+calculateZakat();
+</script>
+</body>
+</html>

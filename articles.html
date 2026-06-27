@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5">
+<title>প্রবন্ধ — ইসলামিক নিবন্ধ ও জীবনযাপন | দ্বীনপথ</title>
+<meta name="description" content="আকীদা, ইবাদত, পরিবার ও সমকালীন বিষয়ে গবেষণাধর্মী বাংলা ইসলামিক প্রবন্ধ।">
+<meta name="theme-color" content="#0b3024">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Tiro+Bangla:ital@0;1&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<style>
+  .article-filter-row { display: flex; gap: 8px; margin-bottom: 30px; flex-wrap: wrap; }
+  .article-chip { padding: 9px 16px; border-radius: 100px; background: var(--white); border: 1px solid var(--bone-200); font-weight: 700; font-size: 0.86rem; color: var(--ink-700); }
+  .article-chip.active { background: var(--green-800); color: var(--white); border-color: var(--green-800); }
+
+  .article-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; }
+  @media (max-width: 980px) { .article-grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 620px) { .article-grid { grid-template-columns: 1fr; } }
+
+  .article-card { background: var(--white); border: 1px solid var(--bone-200); border-radius: var(--radius-md); overflow: hidden; transition: transform 0.2s, box-shadow 0.2s; }
+  .article-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-lift); }
+  .article-thumb { height: 150px; background: linear-gradient(135deg, var(--green-700), var(--green-950)); display: flex; align-items: center; justify-content: center; font-size: 2.4rem; position: relative; overflow: hidden; }
+  .article-body { padding: 20px; }
+  .article-body .acat { color: var(--gold-600); font-weight: 700; font-size: 0.78rem; margin-bottom: 8px; display: block; }
+  .article-body h3 { font-size: 1.05rem; margin-bottom: 10px; line-height: 1.5; }
+  .article-body p { color: var(--ink-500); font-size: 0.88rem; margin-bottom: 14px; }
+  .article-meta { display: flex; justify-content: space-between; font-size: 0.78rem; color: var(--ink-500); border-top: 1px solid var(--bone-200); padding-top: 12px; }
+</style>
+</head>
+<body>
+
+<section class="page-hero">
+  <div class="octagon-pattern"></div>
+  <div class="container">
+    <div class="breadcrumb"><a href="index.html">হোম</a> / প্রবন্ধ</div>
+    <h1>✍️ প্রবন্ধ</h1>
+    <p>আকীদা, ইবাদত, পরিবার ও সমকালীন বিষয়ে গবেষণাধর্মী বাংলা ইসলামিক নিবন্ধ।</p>
+  </div>
+</section>
+
+<section class="section-tight">
+  <div class="container">
+    <div class="article-filter-row" id="articleFilterRow"></div>
+    <div class="article-grid" id="articleGrid"></div>
+  </div>
+</section>
+
+<script src="data.js"></script>
+<script src="common.js"></script>
+<script>
+const ARTICLES = [
+  { cat:"আকীদা", icon:"🕋", title:"তাওহীদের গুরুত্ব ও আমাদের জীবনে এর প্রভাব", excerpt:"ইসলামের মূলভিত্তি তাওহীদ কীভাবে একজন মুসলিমের চিন্তা, কর্ম ও সম্পর্ককে প্রভাবিত করে তার বিশ্লেষণ।", date:"১০ জুন, ২০২৬", read:"৬ মিনিট" },
+  { cat:"ইবাদত", icon:"🕌", title:"নামাজে একাগ্রতা বৃদ্ধির ৭টি কার্যকর উপায়", excerpt:"দৈনন্দিন ব্যস্ততার মাঝে নামাজে মনোযোগ ও খুশু বৃদ্ধির জন্য বাস্তবসম্মত পরামর্শ।", date:"৫ জুন, ২০২৬", read:"৫ মিনিট" },
+  { cat:"পরিবার", icon:"👨‍👩‍👧", title:"ইসলামে সন্তান প্রতিপালনের নীতি", excerpt:"কুরআন ও হাদীসের আলোকে সন্তানদের চরিত্র গঠন ও দ্বীনি শিক্ষার গুরুত্ব নিয়ে আলোচনা।", date:"২৮ মে, ২০২৬", read:"৮ মিনিট" },
+  { cat:"সমকালীন বিষয়", icon:"💻", title:"ডিজিটাল যুগে মুসলিম তরুণদের নৈতিক চ্যালেঞ্জ", excerpt:"সামাজিক যোগাযোগ মাধ্যম ও প্রযুক্তির যুগে ঈমান রক্ষা ও সময় ব্যবস্থাপনার উপায়।", date:"২০ মে, ২০২৬", read:"৭ মিনিট" },
+  { cat:"ইবাদত", icon:"🌙", title:"রমজান পরবর্তী আমল ধরে রাখার কৌশল", excerpt:"রমজানের রুহানি প্রাপ্তি বছরব্যাপী টিকিয়ে রাখার জন্য ব্যবহারিক পরিকল্পনা।", date:"১২ মে, ২০২৬", read:"৬ মিনিট" },
+  { cat:"আকীদা", icon:"📿", title:"তাওয়াক্কুল বা আল্লাহর উপর ভরসার বাস্তব প্রয়োগ", excerpt:"চেষ্টা ও তাওয়াক্কুলের মধ্যে সমন্বয় কীভাবে একজন মুসলিমের জীবনে প্রশান্তি আনে।", date:"৩ মে, ২০২৬", read:"৫ মিনিট" },
+  { cat:"পরিবার", icon:"💍", title:"সুন্নাহভিত্তিক দাম্পত্য জীবনের ভিত্তি", excerpt:"স্বামী-স্ত্রীর সম্পর্কে ইসলামিক নীতি ও পরস্পরের প্রতি কর্তব্য নিয়ে আলোচনা।", date:"২৫ এপ্রিল, ২০২৬", read:"৭ মিনিট" },
+  { cat:"সমকালীন বিষয়", icon:"💰", title:"হালাল উপার্জন ও আধুনিক অর্থনীতির চ্যালেঞ্জ", excerpt:"সুদ, ক্রিপ্টোকারেন্সি ও আধুনিক বিনিয়োগ পদ্ধতির শরয়ী দৃষ্টিকোণ থেকে পর্যালোচনা।", date:"১৮ এপ্রিল, ২০২৬", read:"৯ মিনিট" },
+];
+
+let activeArtCat = "সব";
+
+function renderArticleFilters() {
+  const cats = ["সব", ...new Set(ARTICLES.map(a => a.cat))];
+  const row = document.getElementById("articleFilterRow");
+  row.innerHTML = cats.map(c => `<button class="article-chip ${c === activeArtCat ? "active" : ""}" data-cat="${c}">${c}</button>`).join("");
+  row.querySelectorAll(".article-chip").forEach(chip => {
+    chip.addEventListener("click", () => {
+      activeArtCat = chip.dataset.cat;
+      renderArticleFilters();
+      renderArticleGrid();
+    });
+  });
+}
+
+function renderArticleGrid() {
+  const grid = document.getElementById("articleGrid");
+  const list = activeArtCat === "সব" ? ARTICLES : ARTICLES.filter(a => a.cat === activeArtCat);
+  grid.innerHTML = list.map(a => `
+    <a href="#" class="article-card">
+      <div class="article-thumb">${a.icon}</div>
+      <div class="article-body">
+        <span class="acat">${a.cat}</span>
+        <h3>${a.title}</h3>
+        <p>${a.excerpt}</p>
+        <div class="article-meta"><span>${a.date}</span><span>${a.read} পড়ার সময়</span></div>
+      </div>
+    </a>
+  `).join("");
+}
+
+renderArticleFilters();
+renderArticleGrid();
+</script>
+</body>
+</html>

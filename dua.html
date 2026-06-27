@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5">
+<title>দু'আ সংগ্রহ — দৈনন্দিন জীবনের দু'আ | দ্বীনপথ</title>
+<meta name="description" content="দৈনন্দিন জীবনের প্রতিটি মুহূর্তের জন্য কুরআন-হাদীস ভিত্তিক দু'আ আরবি, বাংলা উচ্চারণ ও অনুবাদ সহ।">
+<meta name="theme-color" content="#0b3024">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Tiro+Bangla:ital@0;1&family=Noto+Naskh+Arabic:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<style>
+  .dua-cat-row { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 6px; margin-bottom: 30px; }
+  .dua-cat-chip { flex-shrink: 0; padding: 10px 18px; border-radius: 100px; background: var(--white); border: 1px solid var(--bone-200); font-weight: 700; font-size: 0.88rem; color: var(--ink-700); }
+  .dua-cat-chip.active { background: var(--green-800); color: var(--white); border-color: var(--green-800); }
+
+  .dua-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 18px; }
+  @media (max-width: 800px) { .dua-grid { grid-template-columns: 1fr; } }
+
+  .dua-card { background: var(--white); border: 1px solid var(--bone-200); border-radius: var(--radius-md); padding: 24px; }
+  .dua-card .dtitle { font-weight: 700; color: var(--green-800); margin-bottom: 14px; font-size: 0.98rem; }
+  .dua-card .dar { font-family: var(--font-arabic); font-size: 1.4rem; direction: rtl; line-height: 1.95; color: var(--ink-900); margin-bottom: 12px; }
+  .dua-card .dbn { color: var(--ink-700); font-size: 0.92rem; line-height: 1.8; margin-bottom: 10px; }
+  .dua-card .dref { font-size: 0.78rem; color: var(--gold-600); font-weight: 700; }
+</style>
+</head>
+<body>
+
+<section class="page-hero">
+  <div class="octagon-pattern"></div>
+  <div class="container">
+    <div class="breadcrumb"><a href="index.html">হোম</a> / দু'আ</div>
+    <h1>🤲 দু'আ সংগ্রহ</h1>
+    <p>দৈনন্দিন জীবনের প্রতিটি মুহূর্তের জন্য কুরআন ও হাদীস ভিত্তিক দু'আ।</p>
+  </div>
+</section>
+
+<section class="section-tight">
+  <div class="container">
+    <div class="dua-cat-row" id="duaCatRow"></div>
+    <div class="dua-grid" id="duaGrid"></div>
+  </div>
+</section>
+
+<script src="data.js"></script>
+<script src="common.js"></script>
+<script>
+const DUA_DATA = {
+  "সকাল-সন্ধ্যা": [
+    { title:"ঘুম থেকে উঠার দু'আ", ar:"الْحَمْدُ لِلَّهِ الَّذِي أَحْيَانَا بَعْدَ مَا أَمَاتَنَا وَإِلَيْهِ النُّشُورُ", bn:"সমস্ত প্রশংসা আল্লাহর জন্য, যিনি আমাদের মৃত্যুর (নিদ্রার) পর জীবিত করেছেন এবং তাঁরই দিকে আমাদের ফিরে যেতে হবে।", ref:"সহীহ বুখারী" },
+    { title:"সকালের দু'আ", ar:"اللَّهُمَّ بِكَ أَصْبَحْنَا وَبِكَ أَمْسَيْنَا", bn:"হে আল্লাহ, আপনার সাহায্যেই আমরা সকাল করলাম এবং আপনার সাহায্যেই সন্ধ্যা করব।", ref:"সুনানে আবু দাউদ" },
+  ],
+  "খাবার": [
+    { title:"খাবার শুরুর দু'আ", ar:"بِسْمِ اللَّهِ", bn:"আল্লাহর নামে শুরু করছি।", ref:"সহীহ বুখারী" },
+    { title:"খাবার শেষের দু'আ", ar:"الْحَمْدُ لِلَّهِ الَّذِي أَطْعَمَنِي هَذَا وَرَزَقَنِيهِ مِنْ غَيْرِ حَوْلٍ مِنِّي وَلَا قُوَّةٍ", bn:"সমস্ত প্রশংসা আল্লাহর জন্য, যিনি আমাকে এই খাবার খাওয়ালেন এবং আমার কোনো ক্ষমতা বা শক্তি ছাড়াই আমাকে রিজিক দিলেন।", ref:"সুনানে আবু দাউদ" },
+  ],
+  "ঘর ও সফর": [
+    { title:"ঘর থেকে বের হওয়ার দু'আ", ar:"بِسْمِ اللَّهِ تَوَكَّلْتُ عَلَى اللَّهِ وَلَا حَوْلَ وَلَا قُوَّةَ إِلَّا بِاللَّهِ", bn:"আল্লাহর নামে শুরু করছি, আল্লাহর উপর ভরসা করলাম, আল্লাহ ছাড়া কোনো ক্ষমতা ও শক্তি নেই।", ref:"সুনানে আবু দাউদ, তিরমিযী" },
+    { title:"সফরের দু'আ", ar:"اللَّهُ أَكْبَرُ، اللَّهُ أَكْبَرُ، اللَّهُ أَكْبَرُ", bn:"আল্লাহ মহান, আল্লাহ মহান, আল্লাহ মহান। (এরপর সফরের দু'আ পড়তে হয়।)", ref:"সহীহ মুসলিম" },
+  ],
+  "নামাজ": [
+    { title:"নামাজের পরের দু'আ", ar:"أَسْتَغْفِرُ اللَّهَ", bn:"আমি আল্লাহর কাছে ক্ষমা প্রার্থনা করছি। (তিনবার পড়তে হয়)", ref:"সহীহ মুসলিম" },
+    { title:"সিজদার দু'আ", ar:"سُبْحَانَ رَبِّيَ الْأَعْلَى", bn:"আমার প্রতিপালক, যিনি সর্বোচ্চ, তিনি পবিত্র।", ref:"সুনানে আবু দাউদ" },
+  ],
+  "বিপদ ও দুশ্চিন্তা": [
+    { title:"দুশ্চিন্তার দু'আ", ar:"اللَّهُمَّ إِنِّي أَعُوذُ بِكَ مِنَ الْهَمِّ وَالْحَزَنِ", bn:"হে আল্লাহ, আমি দুশ্চিন্তা ও দুঃখ থেকে আপনার কাছে আশ্রয় চাই।", ref:"সহীহ বুখারী" },
+    { title:"বিপদে পড়লে দু'আ", ar:"إِنَّا لِلَّهِ وَإِنَّا إِلَيْهِ رَاجِعُونَ", bn:"আমরা আল্লাহর জন্যই এবং তাঁরই দিকে আমাদের ফিরে যেতে হবে।", ref:"সূরা আল-বাকারা, আয়াত ১৫৬" },
+  ],
+};
+
+let activeDuaCat = Object.keys(DUA_DATA)[0];
+
+function renderDuaCats() {
+  const row = document.getElementById("duaCatRow");
+  row.innerHTML = Object.keys(DUA_DATA).map(cat => `
+    <button class="dua-cat-chip ${cat === activeDuaCat ? "active" : ""}" data-cat="${cat}">${cat}</button>
+  `).join("");
+  row.querySelectorAll(".dua-cat-chip").forEach(chip => {
+    chip.addEventListener("click", () => {
+      activeDuaCat = chip.dataset.cat;
+      renderDuaCats();
+      renderDuaGrid();
+    });
+  });
+}
+
+function renderDuaGrid() {
+  const grid = document.getElementById("duaGrid");
+  grid.innerHTML = DUA_DATA[activeDuaCat].map(d => `
+    <div class="dua-card">
+      <div class="dtitle">${d.title}</div>
+      <div class="dar">${d.ar}</div>
+      <p class="dbn">${d.bn}</p>
+      <p class="dref">— ${d.ref}</p>
+    </div>
+  `).join("");
+}
+
+renderDuaCats();
+renderDuaGrid();
+</script>
+</body>
+</html>

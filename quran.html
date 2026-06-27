@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5">
+<title>কুরআন তিলাওয়াত — আরবি ও বাংলা অনুবাদ | দ্বীনপথ</title>
+<meta name="description" content="সম্পূর্ণ কুরআন আরবি টেক্সট ও বাংলা অনুবাদ সহ পড়ুন। ১১৪টি সূরা, সার্চ সুবিধা ও পঠন অগ্রগতি ট্র্যাকিং।">
+<meta name="theme-color" content="#0b3024">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Tiro+Bangla:ital@0;1&family=Noto+Naskh+Arabic:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<style>
+  .surah-toolbar {
+    display: flex; gap: 12px; margin-bottom: 26px; flex-wrap: wrap; align-items: center;
+  }
+  .surah-search {
+    flex: 1; min-width: 220px;
+    display: flex; align-items: center; gap: 8px;
+    background: var(--white); border: 1px solid var(--bone-200);
+    border-radius: 100px; padding: 10px 18px;
+  }
+  .surah-search input { border: none; outline: none; flex: 1; font-family: var(--font-body); font-size: 0.95rem; background: none; }
+  .filter-chip-row { display: flex; gap: 8px; }
+  .filter-chip {
+    padding: 9px 16px; border-radius: 100px; background: var(--white);
+    border: 1px solid var(--bone-200); font-size: 0.86rem; font-weight: 700; color: var(--ink-700);
+  }
+  .filter-chip.active { background: var(--green-800); color: var(--white); border-color: var(--green-800); }
+
+  .surah-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+  @media (max-width: 880px) { .surah-grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 560px) { .surah-grid { grid-template-columns: 1fr; } }
+
+  .surah-item {
+    display: flex; align-items: center; gap: 14px;
+    background: var(--white); border: 1px solid var(--bone-200);
+    border-radius: var(--radius-md); padding: 16px 18px;
+    transition: border-color 0.18s, transform 0.18s, box-shadow .18s;
+  }
+  .surah-item:hover { border-color: var(--gold-300); transform: translateY(-2px); box-shadow: var(--shadow-soft); }
+  .surah-num {
+    width: 42px; height: 42px; border-radius: 11px; flex-shrink: 0;
+    background: var(--tint-green); color: var(--green-800);
+    display: grid; place-items: center; font-weight: 700; font-family: var(--font-display);
+  }
+  .surah-meta { flex: 1; min-width: 0; }
+  .surah-meta .bn-name { font-weight: 700; font-size: 1rem; color: var(--ink-900); }
+  .surah-meta .sub { font-size: 0.8rem; color: var(--ink-500); margin-top: 2px; }
+  .surah-ar { font-family: var(--font-arabic); font-size: 1.25rem; color: var(--green-800); flex-shrink: 0; }
+
+  /* রিডার মোডাল */
+  .reader-overlay {
+    position: fixed; inset: 0; background: rgba(7,33,26,0.6);
+    display: none; align-items: flex-end; justify-content: center; z-index: 200;
+  }
+  .reader-overlay.open { display: flex; }
+  .reader-panel {
+    background: var(--bone-50); width: 100%; max-width: 720px;
+    max-height: 92vh; border-radius: 22px 22px 0 0;
+    display: flex; flex-direction: column; overflow: hidden;
+  }
+  @media (min-width: 720px) {
+    .reader-overlay { align-items: center; }
+    .reader-panel { border-radius: var(--radius-lg); max-height: 86vh; }
+  }
+  .reader-head {
+    padding: 18px 22px; background: var(--green-900); color: var(--white);
+    display: flex; justify-content: space-between; align-items: center; flex-shrink: 0;
+  }
+  .reader-head h3 { color: var(--white); font-size: 1.15rem; }
+  .reader-head .sub { color: rgba(255,255,255,0.6); font-size: 0.82rem; margin-top: 3px; }
+  .reader-close { background: rgba(255,255,255,0.1); border: none; color: var(--white); width: 34px; height: 34px; border-radius: 50%; font-size: 1.1rem; }
+  .reader-body { overflow-y: auto; padding: 24px 22px 40px; flex: 1; }
+  .ayah-block { padding: 20px 0; border-bottom: 1px solid var(--bone-200); }
+  .ayah-block:first-child { padding-top: 4px; }
+  .ayah-num-badge {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 26px; height: 26px; border-radius: 50%; background: var(--tint-green);
+    color: var(--green-800); font-size: 0.75rem; font-weight: 700; margin-bottom: 10px;
+  }
+  .ayah-arabic { font-family: var(--font-arabic); font-size: 1.55rem; line-height: 2.3; direction: rtl; color: var(--ink-900); margin-bottom: 10px; }
+  .ayah-bn { color: var(--ink-700); font-size: 0.97rem; line-height: 1.8; }
+  .reader-loading { text-align: center; padding: 60px 20px; color: var(--ink-500); }
+</style>
+</head>
+<body>
+
+<section class="page-hero">
+  <div class="octagon-pattern"></div>
+  <div class="container">
+    <div class="breadcrumb"><a href="index.html">হোম</a> / কুরআন</div>
+    <h1>📖 কুরআন তিলাওয়াত</h1>
+    <p>সম্পূর্ণ কুরআন আরবি টেক্সট ও বাংলা অনুবাদ সহ পড়ুন — ১১৪টি সূরা, সহজ সার্চ ও পঠন সুবিধা।</p>
+  </div>
+</section>
+
+<section class="section-tight">
+  <div class="container">
+    <div class="surah-toolbar">
+      <div class="surah-search">
+        <span>🔍</span>
+        <input type="text" id="surahSearch" placeholder="সূরার নাম বা নম্বর লিখুন...">
+      </div>
+      <div class="filter-chip-row">
+        <button class="filter-chip active" data-filter="all">সব</button>
+        <button class="filter-chip" data-filter="মাক্কী">মাক্কী</button>
+        <button class="filter-chip" data-filter="মাদানী">মাদানী</button>
+      </div>
+    </div>
+
+    <div class="surah-grid" id="surahGrid"></div>
+    <div class="empty-state" id="surahEmpty" style="display:none;">
+      <div class="icon">🔍</div>
+      <p>কোনো সূরা পাওয়া যায়নি। ভিন্ন কিছু খুঁজে দেখুন।</p>
+    </div>
+  </div>
+</section>
+
+<!-- রিডার মোডাল -->
+<div class="reader-overlay" id="readerOverlay">
+  <div class="reader-panel">
+    <div class="reader-head">
+      <div>
+        <h3 id="readerTitle">—</h3>
+        <div class="sub" id="readerSub">—</div>
+      </div>
+      <button class="reader-close" id="readerClose" aria-label="বন্ধ করুন">✕</button>
+    </div>
+    <div class="reader-body" id="readerBody">
+      <div class="reader-loading">আয়াত লোড হচ্ছে...</div>
+    </div>
+  </div>
+</div>
+
+<script src="data.js"></script>
+<script src="common.js"></script>
+<script>
+let activeFilter = "all";
+let searchTerm = "";
+
+function renderSurahGrid() {
+  const grid = document.getElementById("surahGrid");
+  const empty = document.getElementById("surahEmpty");
+  const list = SURAH_LIST.filter(s => {
+    const matchesFilter = activeFilter === "all" || s.place === activeFilter;
+    const matchesSearch = !searchTerm ||
+      s.bn.toLowerCase().includes(searchTerm) ||
+      s.mean.toLowerCase().includes(searchTerm) ||
+      String(s.n) === searchTerm;
+    return matchesFilter && matchesSearch;
+  });
+
+  if (list.length === 0) {
+    grid.style.display = "none";
+    empty.style.display = "block";
+    return;
+  }
+  grid.style.display = "grid";
+  empty.style.display = "none";
+
+  grid.innerHTML = list.map(s => `
+    <button class="surah-item" data-n="${s.n}" style="text-align:right; width:100%; border:1px solid var(--bone-200); cursor:pointer;">
+      <span class="surah-num">${toBnNumber(s.n)}</span>
+      <span class="surah-meta">
+        <div class="bn-name">${s.bn}</div>
+        <div class="sub">${s.mean} · ${toBnNumber(s.ayahs)} আয়াত · ${s.place}</div>
+      </span>
+      <span class="surah-ar">${s.ar}</span>
+    </button>
+  `).join("");
+
+  grid.querySelectorAll(".surah-item").forEach(btn => {
+    btn.addEventListener("click", () => openReader(Number(btn.dataset.n)));
+  });
+}
+
+document.getElementById("surahSearch").addEventListener("input", (e) => {
+  searchTerm = e.target.value.trim().toLowerCase();
+  renderSurahGrid();
+});
+
+document.querySelectorAll(".filter-chip").forEach(chip => {
+  chip.addEventListener("click", () => {
+    document.querySelectorAll(".filter-chip").forEach(c => c.classList.remove("active"));
+    chip.classList.add("active");
+    activeFilter = chip.dataset.filter;
+    renderSurahGrid();
+  });
+});
+
+/* ---------- কুরআন রিডার (AlQuran Cloud API) ---------- */
+const overlay = document.getElementById("readerOverlay");
+const readerBody = document.getElementById("readerBody");
+
+async function openReader(surahNum) {
+  const meta = SURAH_LIST.find(s => s.n === surahNum);
+  document.getElementById("readerTitle").textContent = `${meta.bn} (${meta.ar})`;
+  document.getElementById("readerSub").textContent = `${meta.mean} · ${toBnNumber(meta.ayahs)} আয়াত · ${meta.place}`;
+  readerBody.innerHTML = `<div class="reader-loading">আয়াত লোড হচ্ছে...</div>`;
+  overlay.classList.add("open");
+  document.body.style.overflow = "hidden";
+
+  try {
+    const cacheKey = "surah_" + surahNum;
+    let data = cacheGet(cacheKey, 1000 * 60 * 60 * 24);
+    if (!data) {
+      const res = await fetchJson(`https://api.alquran.cloud/v1/surah/${surahNum}/editions/quran-uthmani,bn.bengali`);
+      data = res.data;
+      cacheSet(cacheKey, data);
+    }
+    const arabicEdition = data[0];
+    const bnEdition = data[1];
+
+    const html = arabicEdition.ayahs.map((ayah, i) => `
+      <div class="ayah-block">
+        <span class="ayah-num-badge">${toBnNumber(ayah.numberInSurah)}</span>
+        <div class="ayah-arabic">${ayah.text}</div>
+        <p class="ayah-bn">${bnEdition.ayahs[i] ? bnEdition.ayahs[i].text : ""}</p>
+      </div>
+    `).join("");
+    readerBody.innerHTML = html;
+  } catch (err) {
+    readerBody.innerHTML = `
+      <div class="empty-state">
+        <div class="icon">⚠️</div>
+        <p>আয়াত লোড করা যাচ্ছে না। ইন্টারনেট সংযোগ যাচাই করে আবার চেষ্টা করুন।</p>
+        <button class="btn btn-outline btn-sm" style="margin-top:16px;" onclick="openReader(${surahNum})">আবার চেষ্টা করুন</button>
+      </div>`;
+  }
+}
+
+document.getElementById("readerClose").addEventListener("click", closeReader);
+overlay.addEventListener("click", (e) => { if (e.target === overlay) closeReader(); });
+document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeReader(); });
+
+function closeReader() {
+  overlay.classList.remove("open");
+  document.body.style.overflow = "";
+}
+
+/* URL থেকে সার্চ কোয়েরি (হোমপেজ থেকে আসা) */
+const urlParams = new URLSearchParams(window.location.search);
+if (urlParams.get("q")) {
+  document.getElementById("surahSearch").value = urlParams.get("q");
+  searchTerm = urlParams.get("q").toLowerCase();
+}
+
+renderSurahGrid();
+</script>
+</body>
+</html>

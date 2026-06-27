@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5">
+<title>নামাজের সময়সূচি — সকল জেলা | দ্বীনপথ</title>
+<meta name="description" content="বাংলাদেশের সকল জেলার নির্ভুল নামাজের সময়সূচি। ফজর, যোহর, আসর, মাগরিব, ইশা ও মাসিক ক্যালেন্ডার।">
+<meta name="theme-color" content="#0b3024">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Tiro+Bangla:ital@0;1&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<style>
+  .city-row {
+    display: flex; gap: 10px; align-items: center; margin-bottom: 28px; flex-wrap: wrap;
+  }
+  .city-select {
+    padding: 12px 18px; border-radius: 100px; border: 1px solid var(--bone-200);
+    background: var(--white); font-family: var(--font-body); font-size: 0.95rem; font-weight: 600;
+    color: var(--ink-900); min-width: 200px;
+  }
+  .locate-btn {
+    display: flex; align-items: center; gap: 8px; padding: 12px 18px;
+    border-radius: 100px; border: 1px solid var(--green-700); background: var(--tint-green);
+    color: var(--green-800); font-weight: 700; font-size: 0.9rem;
+  }
+
+  .today-banner {
+    background: linear-gradient(135deg, var(--green-800), var(--green-950));
+    border-radius: var(--radius-lg); padding: 30px 28px; color: var(--white);
+    margin-bottom: 36px; position: relative; overflow: hidden;
+  }
+  .today-banner .row1 { display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: 10px; margin-bottom: 22px; position: relative; z-index: 2;}
+  .today-banner h2 { color: var(--white); font-size: 1.3rem; }
+  .today-banner .hijri { color: var(--gold-300); font-size: 0.9rem; }
+  .timing-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 12px; position: relative; z-index: 2; }
+  @media (max-width: 900px) { .timing-grid { grid-template-columns: repeat(3, 1fr); } }
+  @media (max-width: 520px) { .timing-grid { grid-template-columns: repeat(2, 1fr); } }
+  .timing-cell {
+    background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 14px; padding: 16px 10px; text-align: center;
+  }
+  .timing-cell.next { background: rgba(201,160,77,0.18); border-color: var(--gold-500); }
+  .timing-cell .tname { font-size: 0.84rem; color: rgba(255,255,255,0.7); margin-bottom: 8px; }
+  .timing-cell .tval { font-family: var(--font-display); font-size: 1.18rem; color: var(--gold-300); }
+  .countdown-strip {
+    margin-top: 18px; text-align: center; color: rgba(255,255,255,0.8); font-size: 0.92rem; position: relative; z-index: 2;
+  }
+  .countdown-strip b { color: var(--gold-300); font-family: var(--font-display); }
+
+  .cal-table-wrap { overflow-x: auto; }
+  table.cal-table { width: 100%; border-collapse: collapse; background: var(--white); border-radius: var(--radius-md); overflow: hidden; }
+  table.cal-table th, table.cal-table td { padding: 12px 10px; text-align: center; font-size: 0.88rem; border-bottom: 1px solid var(--bone-200); }
+  table.cal-table th { background: var(--tint-green); color: var(--green-800); font-weight: 700; }
+  table.cal-table tr.today-row { background: var(--gold-100); }
+  table.cal-table td:first-child { font-weight: 700; color: var(--ink-900); }
+</style>
+</head>
+<body>
+
+<section class="page-hero">
+  <div class="octagon-pattern"></div>
+  <div class="container">
+    <div class="breadcrumb"><a href="index.html">হোম</a> / নামাজের সময়</div>
+    <h1>🕐 নামাজের সময়সূচি</h1>
+    <p>বাংলাদেশের সকল জেলার নির্ভুল নামাজের সময়, লাইভ কাউন্টডাউন ও মাসিক ক্যালেন্ডার।</p>
+  </div>
+</section>
+
+<section class="section-tight">
+  <div class="container">
+    <div class="city-row">
+      <select class="city-select" id="citySelect"></select>
+      <button class="locate-btn" id="locateBtn">📍 আমার লোকেশন ব্যবহার করুন</button>
+    </div>
+
+    <div class="today-banner">
+      <div class="octagon-pattern" style="opacity:0.06;"></div>
+      <div class="row1">
+        <div>
+          <h2 id="bannerCity">ঢাকা</h2>
+          <span class="hijri" id="bannerDate">—</span>
+        </div>
+        <span class="hijri" id="bannerHijri">—</span>
+      </div>
+      <div class="timing-grid" id="timingGrid"></div>
+      <div class="countdown-strip" id="countdownStrip">লোড হচ্ছে...</div>
+    </div>
+
+    <div class="section-head" style="margin-bottom:24px;">
+      <span class="eyebrow-dark">মাসিক ক্যালেন্ডার</span>
+      <h2 id="calMonthTitle">এই মাসের সময়সূচি</h2>
+    </div>
+    <div class="cal-table-wrap">
+      <table class="cal-table" id="calTable">
+        <thead>
+          <tr><th>তারিখ</th><th>ফজর</th><th>সূর্যোদয়</th><th>যোহর</th><th>আসর</th><th>মাগরিব</th><th>ইশা</th></tr>
+        </thead>
+        <tbody id="calBody">
+          <tr><td colspan="7" style="padding:30px;">ক্যালেন্ডার লোড হচ্ছে...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<script src="data.js"></script>
+<script src="common.js"></script>
+<script>
+const PRAYER_KEYS = ["Fajr","Sunrise","Dhuhr","Asr","Maghrib","Isha"];
+const PRAYER_LABELS = { Fajr:"ফজর", Sunrise:"সূর্যোদয়", Dhuhr:"যোহর", Asr:"আসর", Maghrib:"মাগরিব", Isha:"ইশা" };
+const NEXT_ELIGIBLE = ["Fajr","Dhuhr","Asr","Maghrib","Isha"];
+
+let currentCity = BD_CITIES[0];
+
+function populateCitySelect() {
+  const sel = document.getElementById("citySelect");
+  sel.innerHTML = BD_CITIES.map(c => `<option value="${c.name}">${c.name}</option>`).join("");
+  sel.addEventListener("change", () => {
+    currentCity = BD_CITIES.find(c => c.name === sel.value);
+    loadToday();
+    loadMonth();
+  });
+}
+
+function to12h(timeStr) {
+  const [h, m] = timeStr.split(":").map(Number);
+  const hour12 = h % 12 === 0 ? 12 : h % 12;
+  const ampm = h < 12 ? "পূ" : "অপ";
+  return `${toBnNumber(hour12)}:${toBnNumber(String(m).padStart(2,"0"))} ${ampm}`;
+}
+
+async function loadToday() {
+  document.getElementById("bannerCity").textContent = currentCity.name;
+  document.getElementById("bannerDate").textContent = formatBnDate();
+  document.getElementById("timingGrid").innerHTML = Array(6).fill(`<div class="timing-cell"><div class="tname skeleton" style="height:14px;width:50px;margin:0 auto 8px;"></div><div class="tval skeleton" style="height:18px;width:60px;margin:0 auto;"></div></div>`).join("");
+  document.getElementById("countdownStrip").textContent = "লোড হচ্ছে...";
+
+  try {
+    const cacheKey = `today_${currentCity.name}_${new Date().toDateString()}`;
+    let data = cacheGet(cacheKey, 1000 * 60 * 60);
+    if (!data) {
+      const res = await fetchJson(`https://api.aladhan.com/v1/timings/${Math.floor(Date.now()/1000)}?latitude=${currentCity.lat}&longitude=${currentCity.lng}&method=1`);
+      data = res.data;
+      cacheSet(cacheKey, data);
+    }
+    const timings = data.timings;
+    document.getElementById("bannerHijri").textContent = `${data.date.hijri.day} ${data.date.hijri.month.ar} ${data.date.hijri.year} হিজরী`;
+
+    const now = new Date();
+    const nowMins = now.getHours() * 60 + now.getMinutes();
+    let nextKey = null, nextMins = null;
+    NEXT_ELIGIBLE.forEach(k => {
+      const [h, m] = timings[k].split(":").map(Number);
+      const mins = h * 60 + m;
+      if (nextKey === null && mins > nowMins) { nextKey = k; nextMins = mins; }
+    });
+
+    document.getElementById("timingGrid").innerHTML = PRAYER_KEYS.map(k => `
+      <div class="timing-cell ${k === nextKey ? "next" : ""}">
+        <div class="tname">${PRAYER_LABELS[k]}</div>
+        <div class="tval">${to12h(timings[k])}</div>
+      </div>
+    `).join("");
+
+    if (nextKey) {
+      const diff = nextMins - nowMins;
+      const hh = Math.floor(diff / 60), mm = diff % 60;
+      document.getElementById("countdownStrip").innerHTML = `<b>${PRAYER_LABELS[nextKey]}</b> নামাজের বাকি আর <b>${toBnNumber(hh)} ঘণ্টা ${toBnNumber(mm)} মিনিট</b>`;
+    } else {
+      document.getElementById("countdownStrip").textContent = "আজকের সকল নামাজের সময় শেষ হয়েছে। আগামীকাল ফজর থেকে শুরু।";
+    }
+  } catch (err) {
+    document.getElementById("timingGrid").innerHTML = `<div class="empty-state" style="grid-column:1/-1; color:rgba(255,255,255,0.7);"><div class="icon">⚠️</div><p style="color:rgba(255,255,255,0.7);">সময়সূচি লোড করা যাচ্ছে না। আবার চেষ্টা করুন।</p></div>`;
+    document.getElementById("countdownStrip").textContent = "";
+  }
+}
+
+async function loadMonth() {
+  const tbody = document.getElementById("calBody");
+  tbody.innerHTML = `<tr><td colspan="7" style="padding:30px;">ক্যালেন্ডার লোড হচ্ছে...</td></tr>`;
+  const now = new Date();
+  document.getElementById("calMonthTitle").textContent = `${BN_MONTHS_FALLBACK(now.getMonth())} ${toBnNumber(now.getFullYear())} — ${currentCity.name}`;
+
+  try {
+    const cacheKey = `month_${currentCity.name}_${now.getFullYear()}_${now.getMonth()}`;
+    let days = cacheGet(cacheKey, 1000 * 60 * 60 * 12);
+    if (!days) {
+      const res = await fetchJson(`https://api.aladhan.com/v1/calendar/${now.getFullYear()}/${now.getMonth()+1}?latitude=${currentCity.lat}&longitude=${currentCity.lng}&method=1`);
+      days = res.data;
+      cacheSet(cacheKey, days);
+    }
+    const todayDate = now.getDate();
+    tbody.innerHTML = days.map(d => {
+      const dayNum = parseInt(d.date.gregorian.day, 10);
+      const isToday = dayNum === todayDate;
+      return `
+        <tr class="${isToday ? "today-row" : ""}">
+          <td>${toBnNumber(dayNum)}</td>
+          <td>${to12h(d.timings.Fajr.split(" ")[0])}</td>
+          <td>${to12h(d.timings.Sunrise.split(" ")[0])}</td>
+          <td>${to12h(d.timings.Dhuhr.split(" ")[0])}</td>
+          <td>${to12h(d.timings.Asr.split(" ")[0])}</td>
+          <td>${to12h(d.timings.Maghrib.split(" ")[0])}</td>
+          <td>${to12h(d.timings.Isha.split(" ")[0])}</td>
+        </tr>
+      `;
+    }).join("");
+  } catch (err) {
+    tbody.innerHTML = `<tr><td colspan="7" style="padding:30px; color:var(--ink-500);">ক্যালেন্ডার লোড করা যাচ্ছে না। আবার চেষ্টা করুন।</td></tr>`;
+  }
+}
+
+function BN_MONTHS_FALLBACK(i) {
+  const months = ["জানুয়ারি","ফেব্রুয়ারি","মার্চ","এপ্রিল","মে","জুন","জুলাই","আগস্ট","সেপ্টেম্বর","অক্টোবর","নভেম্বর","ডিসেম্বর"];
+  return months[i];
+}
+
+document.getElementById("locateBtn").addEventListener("click", () => {
+  if (!navigator.geolocation) {
+    showToast("আপনার ব্রাউজার লোকেশন সাপোর্ট করে না");
+    return;
+  }
+  showToast("লোকেশন খোঁজা হচ্ছে...");
+  navigator.geolocation.getCurrentPosition(
+    (pos) => {
+      currentCity = { name: "আপনার লোকেশন", lat: pos.coords.latitude, lng: pos.coords.longitude };
+      document.getElementById("citySelect").value = "";
+      loadToday();
+      loadMonth();
+      showToast("লোকেশন পাওয়া গেছে");
+    },
+    () => showToast("লোকেশন পাওয়া যায়নি। শহর নির্বাচন করুন।")
+  );
+});
+
+populateCitySelect();
+loadToday();
+loadMonth();
+setInterval(loadToday, 60000);
+</script>
+</body>
+</html>

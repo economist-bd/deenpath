@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5">
+<title>হাদীস সংকলন — বুখারী, মুসলিম ও আরও | দ্বীনপথ</title>
+<meta name="description" content="সহীহ বুখারী, সহীহ মুসলিম, আবু দাউদ, তিরমিযী সহ প্রধান হাদীস গ্রন্থ থেকে বিষয়ভিত্তিক হাদীস সংকলন বাংলা অনুবাদে।">
+<meta name="theme-color" content="#0b3024">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Tiro+Bangla:ital@0;1&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<style>
+  .book-strip { display: flex; gap: 12px; overflow-x: auto; padding-bottom: 8px; margin-bottom: 30px; }
+  .book-chip {
+    flex-shrink: 0; min-width: 168px;
+    background: var(--white); border: 1px solid var(--bone-200); border-radius: var(--radius-md);
+    padding: 16px 18px; text-align: right;
+  }
+  .book-chip.active { border-color: var(--gold-500); background: var(--tint-green); }
+  .book-chip .bname { font-weight: 700; font-size: 0.96rem; color: var(--ink-900); }
+  .book-chip .bcompiler { font-size: 0.74rem; color: var(--ink-500); margin-top: 4px; line-height: 1.5; }
+  .book-chip .bcount { font-size: 0.78rem; color: var(--gold-600); font-weight: 700; margin-top: 8px; }
+
+  .layout-2col { display: grid; grid-template-columns: 230px 1fr; gap: 28px; align-items: start; }
+  @media (max-width: 880px) { .layout-2col { grid-template-columns: 1fr; } }
+
+  .cat-list { display: flex; flex-direction: column; gap: 6px; position: sticky; top: 90px; }
+  @media (max-width: 880px) { .cat-list { position: static; flex-direction: row; overflow-x: auto; } }
+  .cat-item {
+    padding: 11px 16px; border-radius: 10px; text-align: right;
+    font-size: 0.92rem; font-weight: 600; color: var(--ink-700);
+    border: 1px solid transparent; white-space: nowrap;
+  }
+  .cat-item.active { background: var(--green-800); color: var(--white); }
+  .cat-item:not(.active):hover { background: var(--bone-100); }
+
+  .hadith-card {
+    background: var(--white); border: 1px solid var(--bone-200); border-radius: var(--radius-md);
+    padding: 24px; margin-bottom: 16px;
+  }
+  .hadith-card .hmeta { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; flex-wrap: wrap; gap: 8px; }
+  .hadith-card .hbook { font-weight: 700; color: var(--green-800); font-size: 0.92rem; }
+  .hadith-card .hnum { color: var(--ink-500); font-size: 0.82rem; }
+  .hadith-card .htext { color: var(--ink-900); font-size: 1.01rem; line-height: 1.9; margin-bottom: 14px; }
+  .hadith-card .hfoot { display: flex; justify-content: space-between; align-items: center; font-size: 0.84rem; color: var(--ink-500); flex-wrap: wrap; gap: 8px; }
+  .grade-pill { padding: 4px 12px; border-radius: 100px; background: var(--gold-100); color: var(--gold-600); font-weight: 700; font-size: 0.78rem; }
+</style>
+</head>
+<body>
+
+<section class="page-hero">
+  <div class="octagon-pattern"></div>
+  <div class="container">
+    <div class="breadcrumb"><a href="index.html">হোম</a> / হাদীস</div>
+    <h1>📚 হাদীস সংকলন</h1>
+    <p>সহীহ বুখারী, সহীহ মুসলিম সহ প্রধান ছয়টি গ্রন্থ থেকে বিষয়ভিত্তিক হাদীস — বাংলা অনুবাদে।</p>
+  </div>
+</section>
+
+<section class="section-tight">
+  <div class="container">
+    <div class="book-strip" id="bookStrip"></div>
+
+    <div class="surah-search" style="max-width:480px; margin-bottom:24px; background:var(--white); border:1px solid var(--bone-200); border-radius:100px; padding:10px 18px; display:flex; align-items:center; gap:8px;">
+      <span>🔍</span>
+      <input type="text" id="hadithSearch" placeholder="হাদীসের বিষয় বা শব্দ খুঁজুন..." style="border:none; outline:none; flex:1; font-family: var(--font-body); font-size:0.95rem; background:none;">
+    </div>
+
+    <div class="layout-2col">
+      <div class="cat-list" id="catList"></div>
+      <div id="hadithResults"></div>
+    </div>
+  </div>
+</section>
+
+<script src="data.js"></script>
+<script src="common.js"></script>
+<script>
+let activeBook = "all";
+let activeCat = "সব";
+let hSearch = "";
+
+function renderBookStrip() {
+  const strip = document.getElementById("bookStrip");
+  const allChip = `<button class="book-chip ${activeBook === "all" ? "active" : ""}" data-book="all">
+      <div class="bname">সকল গ্রন্থ</div>
+      <div class="bcompiler">সব সংকলন একসাথে</div>
+    </button>`;
+  const chips = HADITH_BOOKS.map(b => `
+    <button class="book-chip ${activeBook === b.id ? "active" : ""}" data-book="${b.id}">
+      <div class="bname">${b.name}</div>
+      <div class="bcompiler">${b.compiler}</div>
+      <div class="bcount">${toBnNumber(b.count)}+ হাদীস</div>
+    </button>
+  `).join("");
+  strip.innerHTML = allChip + chips;
+  strip.querySelectorAll(".book-chip").forEach(c => {
+    c.addEventListener("click", () => { activeBook = c.dataset.book; renderAll(); });
+  });
+}
+
+function renderCatList() {
+  const list = document.getElementById("catList");
+  const cats = ["সব", ...HADITH_CATEGORIES];
+  list.innerHTML = cats.map(c => `
+    <button class="cat-item ${activeCat === c ? "active" : ""}" data-cat="${c}">${c}</button>
+  `).join("");
+  list.querySelectorAll(".cat-item").forEach(item => {
+    item.addEventListener("click", () => { activeCat = item.dataset.cat; renderAll(); });
+  });
+}
+
+function renderHadithResults() {
+  const container = document.getElementById("hadithResults");
+  const filtered = HADITH_DATA.filter(h => {
+    const matchBook = activeBook === "all" || h.book === activeBook;
+    const matchCat = activeCat === "সব" || h.cat === activeCat;
+    const matchSearch = !hSearch || h.bn.toLowerCase().includes(hSearch) || h.cat.toLowerCase().includes(hSearch);
+    return matchBook && matchCat && matchSearch;
+  });
+
+  if (filtered.length === 0) {
+    container.innerHTML = `
+      <div class="empty-state">
+        <div class="icon">🔍</div>
+        <p>এই ফিল্টারে কোনো হাদীস পাওয়া যায়নি। অন্য বিষয় বা গ্রন্থ বেছে নিন।</p>
+      </div>`;
+    return;
+  }
+
+  container.innerHTML = filtered.map(h => {
+    const bookName = HADITH_BOOKS.find(b => b.id === h.book)?.name || h.book;
+    return `
+      <div class="hadith-card">
+        <div class="hmeta">
+          <span class="hbook">${bookName}</span>
+          <span class="tag">${h.cat}</span>
+        </div>
+        <p class="htext">${h.bn}</p>
+        <div class="hfoot">
+          <span>বর্ণনাকারী: ${h.narrator}</span>
+          <span class="grade-pill">${h.grade}</span>
+        </div>
+      </div>
+    `;
+  }).join("");
+}
+
+function renderAll() {
+  renderBookStrip();
+  renderCatList();
+  renderHadithResults();
+}
+
+document.getElementById("hadithSearch").addEventListener("input", (e) => {
+  hSearch = e.target.value.trim().toLowerCase();
+  renderHadithResults();
+});
+
+renderAll();
+</script>
+</body>
+</html>

@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5">
+<title>এডমিন প্যানেল — দ্বীনপথ</title>
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#0b3024">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Tiro+Bangla:ital@0;1&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<section class="page-hero">
+  <div class="octagon-pattern"></div>
+  <div class="container">
+    <div class="breadcrumb"><a href="index.html">হোম</a> / এডমিন প্যানেল</div>
+    <h1>🛠️ এডমিন প্যানেল</h1>
+    <p>ব্লগ লেখা পাবলিশ ও ম্যানেজ করুন।</p>
+  </div>
+</section>
+
+<section class="section-tight">
+  <div class="container">
+
+    <!-- লগইন/অপেক্ষা/নো-এক্সেস গেট -->
+    <div id="adminGate" class="admin-gate">
+      <div class="icon">🔐</div>
+      <h2 id="gateTitle">যাচাই করা হচ্ছে...</h2>
+      <p id="gateText">আপনার অ্যাক্সেস যাচাই করা হচ্ছে, কিছুক্ষণ অপেক্ষা করুন।</p>
+      <div id="gateAction"></div>
+    </div>
+
+    <!-- এডমিন প্যানেল (অ্যাক্সেস থাকলেই দেখা যাবে) -->
+    <div id="adminPanel" class="admin-layout" style="display:none;">
+      <div class="admin-card">
+        <h2 id="formTitle">নতুন লেখা যুক্ত করুন</h2>
+        <form id="postForm">
+          <div class="aform-group">
+            <label>টাইটেল</label>
+            <input type="text" id="fTitle" required placeholder="লেখার শিরোনাম">
+          </div>
+          <div class="aform-row">
+            <div class="aform-group">
+              <label>ক্যাটাগরি</label>
+              <input type="text" id="fCategory" required placeholder="যেমন: আকীদা, ইবাদত, পরিবার">
+            </div>
+            <div class="aform-group">
+              <label>স্ট্যাটাস</label>
+              <select id="fStatus">
+                <option value="published">প্রকাশিত (Published)</option>
+                <option value="draft">ড্রাফট (Draft)</option>
+              </select>
+            </div>
+          </div>
+          <div class="aform-group">
+            <label>ছবির URL (ঐচ্ছিক)</label>
+            <input type="url" id="fImageUrl" placeholder="https://example.com/image.jpg">
+            <div class="aform-hint">imgbb, GitHub, বা অন্য কোনো ইমেজ হোস্টিং থেকে সরাসরি ছবির লিংক দিন। খালি রাখলে ডিফল্ট আইকন দেখাবে।</div>
+          </div>
+          <div class="aform-group">
+            <label>লেখার মূল কনটেন্ট</label>
+            <textarea id="fBody" required placeholder="এখানে আপনার সম্পূর্ণ লেখা লিখুন..."></textarea>
+          </div>
+          <div class="aform-actions">
+            <button type="submit" class="btn btn-primary" id="submitBtn">পাবলিশ করুন</button>
+            <button type="button" class="btn btn-outline" id="cancelEditBtn" style="display:none;">বাতিল করুন</button>
+          </div>
+        </form>
+      </div>
+
+      <div class="admin-card">
+        <h2>সকল লেখা (<span id="postCount">০</span>)</h2>
+        <div class="admin-post-list" id="adminPostList">
+          <div class="empty-state"><div class="icon">⏳</div><p>লোড হচ্ছে...</p></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<script src="data.js"></script>
+<script src="common.js"></script>
+<script type="module" src="firebase-config.js"></script>
+<script>
+let editingPostId = null;
+let cachedAdminPosts = [];
+
+function waitForAuthReady() {
+  return new Promise((resolve) => {
+    const check = () => {
+      if (window.DeenpathAuth && window.DeenpathAuth.fetchAllPostsForAdmin) resolve();
+      else setTimeout(check, 80);
+    };
+    check();
+  });
+}
+
+function escapeHtml(str) {
+  const div = document.createElement("div");
+  div.textContent = str || "";
+  return div.innerHTML;
+}
+
+function formatPostDate(ts) {
+  try {
+    const d = ts && ts.toDate ? ts.toDate() : new Date(ts);
+    return formatBnDate(d);
+  } catch (e) {
+    return "";
+  }
+}
+
+function showGate(title, text, actionHtml) {
+  document.getElementById("adminGate").style.display = "block";
+  document.getElementById("adminPanel").style.display = "none";
+  document.getElementById("gateTitle").textContent = title;
+  document.getElementById("gateText").textContent = text;
+  document.getElementById("gateAction").innerHTML = actionHtml || "";
+}
+
+function showPanel() {
+  document.getElementById("adminGate").style.display = "none";
+  document.getElementById("adminPanel").style.display = "grid";
+}
+
+/* অ্যাক্সেস চেক হ্যান্ডল হয় নিচের deenpath-auth-changed ইভেন্ট লিসেনারে */
+let accessChecked = false;
+window.addEventListener("deenpath-auth-changed", async (e) => {
+  const user = e.detail.user;
+  if (!user) {
+    accessChecked = false;
+    showGate(
+      "লগইন প্রয়োজন",
+      "এডমিন প্যানেল দেখতে আপনাকে Google দিয়ে লগইন করতে হবে।",
+      `<button class="btn btn-primary" id="gateLoginBtn">গুগল দিয়ে লগইন করুন</button>`
+    );
+    const btn = document.getElementById("gateLoginBtn");
+    if (btn) btn.addEventListener("click", () => window.DeenpathAuth.signInWithGoogle().catch(() => {}));
+    return;
+  }
+
+  if (accessChecked) return;
+  accessChecked = true;
+
+  showGate("যাচাই করা হচ্ছে...", "আপনার এডমিন অ্যাক্সেস যাচাই করা হচ্ছে।", "");
+  const isAdmin = await window.DeenpathAuth.isAdminUser(user.uid);
+
+  if (!isAdmin) {
+    showGate(
+      "অ্যাক্সেস নেই",
+      `আপনার একাউন্ট (${user.email}) এডমিন তালিকায় নেই। এডমিন হিসেবে যুক্ত হতে ওয়েবসাইট পরিচালকের সাথে যোগাযোগ করুন।`,
+      ""
+    );
+    return;
+  }
+
+  showPanel();
+  loadAdminPosts();
+});
+
+/* ---------- পোস্ট লিস্ট লোড ---------- */
+async function loadAdminPosts() {
+  const list = document.getElementById("adminPostList");
+  list.innerHTML = `<div class="empty-state"><div class="icon">⏳</div><p>লোড হচ্ছে...</p></div>`;
+  try {
+    cachedAdminPosts = await window.DeenpathAuth.fetchAllPostsForAdmin();
+    document.getElementById("postCount").textContent = toBnNumber(cachedAdminPosts.length);
+
+    if (cachedAdminPosts.length === 0) {
+      list.innerHTML = `<div class="empty-state"><div class="icon">📭</div><p>এখনো কোনো লেখা যুক্ত করা হয়নি।</p></div>`;
+      return;
+    }
+
+    list.innerHTML = cachedAdminPosts.map(p => `
+      <div class="admin-post-item">
+        <div class="admin-post-thumb">${p.imageUrl ? `<img src="${escapeHtml(p.imageUrl)}" alt="" onerror="this.parentElement.textContent='📝'">` : "📝"}</div>
+        <div class="admin-post-info">
+          <div class="ptitle">${escapeHtml(p.title)}</div>
+          <div class="pmeta">
+            <span class="status-pill ${p.status}">${p.status === "published" ? "প্রকাশিত" : "ড্রাফট"}</span>
+            <span>${escapeHtml(p.category || "")}</span>
+            <span>${formatPostDate(p.createdAt)}</span>
+          </div>
+        </div>
+        <div class="admin-post-actions">
+          <button class="icon-btn-sm" data-edit="${p.id}" aria-label="এডিট করুন">✏️</button>
+          <button class="icon-btn-sm danger" data-delete="${p.id}" aria-label="ডিলিট করুন">🗑️</button>
+        </div>
+      </div>
+    `).join("");
+
+    list.querySelectorAll("[data-edit]").forEach(btn => {
+      btn.addEventListener("click", () => startEdit(btn.dataset.edit));
+    });
+    list.querySelectorAll("[data-delete]").forEach(btn => {
+      btn.addEventListener("click", () => confirmDelete(btn.dataset.delete));
+    });
+  } catch (err) {
+    console.error("Load admin posts error:", err);
+    list.innerHTML = `<div class="empty-state"><div class="icon">⚠️</div><p>লোড করা যাচ্ছে না। আবার চেষ্টা করুন।</p></div>`;
+  }
+}
+
+/* ---------- এডিট মোড ---------- */
+function startEdit(postId) {
+  const post = cachedAdminPosts.find(p => p.id === postId);
+  if (!post) return;
+  editingPostId = postId;
+  document.getElementById("formTitle").textContent = "লেখা সম্পাদনা করুন";
+  document.getElementById("fTitle").value = post.title || "";
+  document.getElementById("fCategory").value = post.category || "";
+  document.getElementById("fImageUrl").value = post.imageUrl || "";
+  document.getElementById("fBody").value = post.body || "";
+  document.getElementById("fStatus").value = post.status || "published";
+  document.getElementById("submitBtn").textContent = "পরিবর্তন সংরক্ষণ করুন";
+  document.getElementById("cancelEditBtn").style.display = "inline-flex";
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+function resetForm() {
+  editingPostId = null;
+  document.getElementById("postForm").reset();
+  document.getElementById("formTitle").textContent = "নতুন লেখা যুক্ত করুন";
+  document.getElementById("submitBtn").textContent = "পাবলিশ করুন";
+  document.getElementById("cancelEditBtn").style.display = "none";
+}
+
+document.getElementById("cancelEditBtn").addEventListener("click", resetForm);
+
+/* ---------- ডিলিট ---------- */
+async function confirmDelete(postId) {
+  const post = cachedAdminPosts.find(p => p.id === postId);
+  if (!post) return;
+  if (!confirm(`"${post.title}" লেখাটি ডিলিট করতে চান? এই কাজ ফিরিয়ে আনা যাবে না।`)) return;
+  try {
+    await window.DeenpathAuth.deletePost(postId);
+    showToast("লেখা ডিলিট হয়েছে");
+    loadAdminPosts();
+    if (editingPostId === postId) resetForm();
+  } catch (err) {
+    console.error("Delete error:", err);
+    showToast("ডিলিট করা যায়নি, আবার চেষ্টা করুন");
+  }
+}
+
+/* ---------- ফর্ম সাবমিট (নতুন/এডিট দুটোই) ---------- */
+document.getElementById("postForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const submitBtn = document.getElementById("submitBtn");
+  const originalText = submitBtn.textContent;
+  submitBtn.disabled = true;
+  submitBtn.textContent = "সংরক্ষণ হচ্ছে...";
+
+  const fields = {
+    title: document.getElementById("fTitle").value.trim(),
+    category: document.getElementById("fCategory").value.trim(),
+    imageUrl: document.getElementById("fImageUrl").value.trim(),
+    body: document.getElementById("fBody").value.trim(),
+    status: document.getElementById("fStatus").value,
+  };
+
+  try {
+    if (editingPostId) {
+      await window.DeenpathAuth.updatePost(editingPostId, fields);
+      showToast("লেখা আপডেট হয়েছে");
+    } else {
+      const user = window.DeenpathAuth.auth.currentUser;
+      await window.DeenpathAuth.createPost({
+        ...fields,
+        authorName: (user && user.displayName) || "দ্বীনপথ টিম",
+        authorUid: user ? user.uid : "",
+      });
+      showToast("লেখা পাবলিশ হয়েছে");
+    }
+    resetForm();
+    loadAdminPosts();
+  } catch (err) {
+    console.error("Save post error:", err);
+    showToast("সংরক্ষণ করা যায়নি, আবার চেষ্টা করুন");
+  } finally {
+    submitBtn.disabled = false;
+    submitBtn.textContent = originalText;
+  }
+});
+</script>
+</body>
+</html>

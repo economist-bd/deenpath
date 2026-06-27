@@ -12,12 +12,14 @@ deenpath/
 ├── prayer-times.html    → নামাজের সময়সূচি (লাইভ + মাসিক ক্যালেন্ডার + GPS)
 ├── masail.html          → মাসায়েল (প্রশ্নোত্তর + প্রশ্ন জিজ্ঞাসা ফর্ম)
 ├── dua.html             → দু'আ সংগ্রহ (ক্যাটাগরি অনুযায়ী)
-├── articles.html        → প্রবন্ধ (ফিল্টারযোগ্য গ্রিড)
+├── articles.html        → প্রবন্ধ (স্থির ডেমো ডেটা, অপরিবর্তিত)
+├── blog.html            → ব্লগ (Firestore থেকে লাইভ পোস্ট লোড করে)
+├── admin.html           → এডমিন প্যানেল (ব্লগ পোস্ট লেখা/এডিট/ডিলিট)
 ├── zakat.html           → যাকাত ক্যালকুলেটর (লাইভ হিসাব)
 ├── donation.html        → ডোনেশন (bKash/Nagad/ব্যাংক তথ্য, কপি বাটন)
 ├── style.css            → সম্পূর্ণ ডিজাইন সিস্টেম (একক ফাইল)
 ├── common.js            → হেডার/ফুটার/টোস্ট/ক্যাশ হেল্পার (সব পেজে শেয়ার করা)
-├── firebase-config.js   → Firebase Auth (Google Sign-In) + Firestore ইউজার প্রোফাইল
+├── firebase-config.js   → Firebase Auth (Google Sign-In) + Firestore (ইউজার, ব্লগ পোস্ট, এডমিন চেক)
 └── data.js              → স্থির ডেটা (সূরা তালিকা, হাদীস, জেলা কোঅর্ডিনেট)
 ```
 
@@ -32,22 +34,55 @@ deenpath/
 ### Firebase Console-এ যা সক্রিয় করতে হবে (যদি না থাকে)
 1. **Authentication → Sign-in method → Google** চালু করুন।
 2. **Authentication → Settings → Authorized domains**-এ আপনার ডিপ্লয়মেন্ট ডোমেইন (যেমন `economist-bd.github.io` বা আপনার Vercel ডোমেইন) যুক্ত করুন — নাহলে পপআপ লগইন কাজ করবে না।
-3. **Firestore Database** তৈরি করা থাকতে হবে (production মোডে), এবং নিচের মতো একটা বেসিক সিকিউরিটি রুল রাখুন:
-   ```
-   rules_version = '2';
-   service cloud.firestore {
-     match /databases/{database}/documents {
-       match /users/{userId} {
-         allow read, write: if request.auth != null && request.auth.uid == userId;
-       }
-     }
-   }
-   ```
+3. **Firestore Database** তৈরি করা থাকতে হবে (production মোডে), এবং নিচের সম্পূর্ণ সিকিউরিটি রুল রাখুন (এতে ব্লগ পোস্ট ও এডমিন কালেকশনও কভার করা আছে — পরের সেকশন দেখুন):
+
+## ব্লগ ও এডমিন প্যানেল
+
+`blog.html` সবার জন্য পাবলিক — শুধু `status: "published"` পোস্ট দেখায়, ক্যাটাগরি ফিল্টার সহ। `admin.html` লগইন-প্রটেক্টেড — Google দিয়ে লগইন করতে হবে, এবং Firestore-এর `admins` কালেকশনে আপনার UID থাকলেই এডিটর দেখা যাবে।
+
+**`articles.html` সম্পূর্ণ অপরিবর্তিত আছে** — এটা আগের মতই স্থির ডেমো ডেটা দেখাবে। নতুন লেখা সবসময় `blog.html`-এ যাবে, `articles.html`-এ নয়।
+
+### প্রথম এডমিন যুক্ত করার পদ্ধতি (একবার করতে হবে)
+
+1. আপনার ওয়েবসাইটে গিয়ে **Google দিয়ে লগইন** করুন (হেডারের বাটন দিয়ে)।
+2. [Firebase Console](https://console.firebase.google.com) → আপনার প্রজেক্ট (`deenpath-4e575`) → **Authentication → Users** ট্যাবে যান। আপনার লগইন করা একাউন্টের পাশে একটা **User UID** দেখবেন (লম্বা একটা কোড) — সেটা কপি করুন।
+3. **Firestore Database** ট্যাবে যান → **Start collection** → কালেকশনের নাম দিন `admins`।
+4. **Document ID**-তে ধাপ ২ থেকে কপি করা UID-টা পেস্ট করুন। Firestore একটা ফিল্ড চাইবে — যেকোনো নাম দিয়ে `role: "admin"` টাইপের একটা ফিল্ড যুক্ত করে সেভ করুন (ফিল্ডের ভ্যালু যাই হোক, শুধু ডকুমেন্টটা এক্সিস্ট করাই যথেষ্ট)।
+5. সেভ করার পর ওয়েবসাইটে ফিরে `admin.html` পেজ রিফ্রেশ করুন — এখন এডিটর দেখা যাবে।
+
+পরবর্তীতে আরও কাউকে এডমিন করতে চাইলে একই পদ্ধতিতে তার UID দিয়ে `admins` কালেকশনে আরেকটা ডকুমেন্ট যুক্ত করুন।
+
+### Firestore সিকিউরিটি রুল (গুরুত্বপূর্ণ — অবশ্যই সেট করুন)
+
+Firebase Console → Firestore Database → Rules ট্যাবে গিয়ে নিচের সম্পূর্ণ রুল বসান, নাহলে যেকেউ পোস্ট লিখতে/ডিলিট করতে পারবে বা নিজেকে এডমিন বানাতে পারবে:
+
+```
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    match /users/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+
+    match /admins/{uid} {
+      allow read: if request.auth != null;
+      allow write: if false; // Console থেকেই এডমিন যুক্ত/বাদ দিতে হবে, ওয়েবসাইট থেকে নয়
+    }
+
+    match /posts/{postId} {
+      allow read: if resource.data.status == "published" || (request.auth != null && exists(/databases/$(database)/documents/admins/$(request.auth.uid)));
+      allow create, update, delete: if request.auth != null && exists(/databases/$(database)/documents/admins/$(request.auth.uid));
+    }
+  }
+}
+```
+
+মানে: যেকেউ published পোস্ট পড়তে পারবে, কিন্তু লেখা/এডিট/ডিলিট শুধু `admins` কালেকশনে UID থাকা ব্যক্তিরাই করতে পারবে। `admins` কালেকশন শুধু Firebase Console থেকেই পরিবর্তনযোগ্য — এটা সিকিউরিটির জন্য জরুরি।
 
 ## ডোনেশন পেজ
 
 `donation.html` — কোনো ফর্ম নেই, শুধু bKash, Nagad ও ব্যাংক একাউন্টের তথ্য কার্ড আকারে দেখায়, প্রতিটাতে এক-ক্লিক কপি বাটন। নাম্বার/একাউন্ট তথ্য পরিবর্তন করতে চাইলে `donation.html` ফাইলে সরাসরি এডিট করুন (`bkashNumber`, `nagadNumber`, `bankAccNumber` ইত্যাদি আইডি খুঁজুন)।
-
 
 
 ## ব্যবহৃত API (সবগুলো ফ্রি, কী-বিহীন, CORS-ওপেন)
@@ -91,7 +126,9 @@ vercel --prod
 ## পরবর্তী উন্নতির সুযোগ
 
 - হাদীস ডেটা বাড়ানো (`data.js`-এর `HADITH_DATA` array-এ আরও এন্ট্রি যুক্ত করুন)
-- মাসায়েল ফর্ম সাবমিশন Firebase Firestore-এ সংযুক্ত করা (আপনার `neera-d1df0` প্রজেক্ট ব্যবহার করতে পারেন)
+- মাসায়েল ফর্ম সাবমিশন Firestore-এ সংযুক্ত করা (এখন শুধু টোস্ট দেখায়, সেভ হয় না)
 - যাকাত ক্যালকুলেটরে লাইভ সোনা/রূপার মূল্য API যুক্ত করা
 - কুরআন তিলাওয়াত অডিও প্লেয়ার যুক্ত করা (AlQuran Cloud-এর audio CDN দিয়ে)
+- ব্লগ পোস্টে কমেন্ট/লাইক সিস্টেম যুক্ত করা (Firestore সাব-কালেকশন দিয়ে)
+- ব্লগ পোস্টের জন্য rich text এডিটর (এখন প্লেইন টেক্সট/লাইন-ব্রেক সাপোর্টেড)
 - ইউজার অ্যাকাউন্ট + পঠন অগ্রগতি ট্র্যাকিং (Firestore দিয়ে)

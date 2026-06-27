@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5">
+<title>ব্লগ — দ্বীনপথ</title>
+<meta name="description" content="দ্বীনপথের ব্লগে নিয়মিত প্রকাশিত ইসলামিক লেখা, চিন্তা ও আলোচনা পড়ুন।">
+<meta name="theme-color" content="#0b3024">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Tiro+Bangla:ital@0;1&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<section class="page-hero">
+  <div class="octagon-pattern"></div>
+  <div class="container">
+    <div class="breadcrumb"><a href="index.html">হোম</a> / ব্লগ</div>
+    <h1>📝 ব্লগ</h1>
+    <p>দ্বীনপথের নিয়মিত প্রকাশিত লেখা, চিন্তা ও আলোচনা।</p>
+  </div>
+</section>
+
+<section class="section-tight">
+  <div class="container">
+
+    <!-- লিস্ট ভিউ -->
+    <div id="blogListView">
+      <div class="blog-filter-row" id="blogFilterRow"></div>
+      <div class="blog-grid" id="blogGrid">
+        <div class="empty-state"><div class="icon">⏳</div><p>লেখা লোড হচ্ছে...</p></div>
+      </div>
+    </div>
+
+    <!-- একক পোস্ট ভিউ (হাইড করা, JS দিয়ে দেখানো হবে) -->
+    <div id="blogPostView" class="post-view-wrap" style="display:none;">
+      <a href="#" id="backToBlogBtn" class="back-to-blog">← সব লেখায় ফিরে যান</a>
+      <div id="postContent"></div>
+    </div>
+
+  </div>
+</section>
+
+<script src="data.js"></script>
+<script src="common.js"></script>
+<script type="module" src="firebase-config.js"></script>
+<script>
+let allPosts = [];
+let activeBlogCat = "সব";
+
+function waitForAuthReady() {
+  return new Promise((resolve) => {
+    const check = () => {
+      if (window.DeenpathAuth && window.DeenpathAuth.fetchPublishedPosts) resolve();
+      else setTimeout(check, 80);
+    };
+    check();
+  });
+}
+
+function escapeHtml(str) {
+  const div = document.createElement("div");
+  div.textContent = str || "";
+  return div.innerHTML;
+}
+
+function formatPostDate(ts) {
+  try {
+    const d = ts && ts.toDate ? ts.toDate() : new Date(ts);
+    return formatBnDate(d);
+  } catch (e) {
+    return "";
+  }
+}
+
+function renderBlogFilters() {
+  const cats = ["সব", ...new Set(allPosts.map(p => p.category).filter(Boolean))];
+  const row = document.getElementById("blogFilterRow");
+  row.innerHTML = cats.map(c => `<button class="blog-chip ${c === activeBlogCat ? "active" : ""}" data-cat="${escapeHtml(c)}">${escapeHtml(c)}</button>`).join("");
+  row.querySelectorAll(".blog-chip").forEach(chip => {
+    chip.addEventListener("click", () => {
+      activeBlogCat = chip.dataset.cat;
+      renderBlogFilters();
+      renderBlogGrid();
+    });
+  });
+}
+
+function renderBlogGrid() {
+  const grid = document.getElementById("blogGrid");
+  const list = activeBlogCat === "সব" ? allPosts : allPosts.filter(p => p.category === activeBlogCat);
+
+  if (list.length === 0) {
+    grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1;"><div class="icon">📭</div><p>এখনো কোনো লেখা প্রকাশিত হয়নি। শীঘ্রই নতুন লেখা আসবে।</p></div>`;
+    return;
+  }
+
+  grid.innerHTML = list.map(p => `
+    <div class="blog-card" data-id="${p.id}">
+      <div class="blog-thumb">${p.imageUrl ? `<img src="${escapeHtml(p.imageUrl)}" alt="" loading="lazy" onerror="this.parentElement.innerHTML='📝'">` : "📝"}</div>
+      <div class="blog-body">
+        <span class="acat">${escapeHtml(p.category || "সাধারণ")}</span>
+        <h3>${escapeHtml(p.title)}</h3>
+        <p>${escapeHtml((p.body || "").slice(0, 110))}${(p.body || "").length > 110 ? "..." : ""}</p>
+        <div class="blog-meta">
+          <span>${escapeHtml(p.authorName || "দ্বীনপথ টিম")}</span>
+          <span>${formatPostDate(p.createdAt)}</span>
+        </div>
+      </div>
+    </div>
+  `).join("");
+
+  grid.querySelectorAll(".blog-card").forEach(card => {
+    card.addEventListener("click", () => openPost(card.dataset.id));
+  });
+}
+
+function openPost(id) {
+  const post = allPosts.find(p => p.id === id);
+  if (!post) return;
+  document.getElementById("blogListView").style.display = "none";
+  document.getElementById("blogPostView").style.display = "block";
+
+  document.getElementById("postContent").innerHTML = `
+    ${post.imageUrl ? `<img src="${escapeHtml(post.imageUrl)}" alt="" class="post-hero-img" onerror="this.style.display='none'">` : ""}
+    <span class="tag pcat">${escapeHtml(post.category || "সাধারণ")}</span>
+    <h1>${escapeHtml(post.title)}</h1>
+    <div class="post-meta-row">
+      <span>✍️ ${escapeHtml(post.authorName || "দ্বীনপথ টিম")}</span>
+      <span>📅 ${formatPostDate(post.createdAt)}</span>
+    </div>
+    <div class="post-body-content">${escapeHtml(post.body)}</div>
+  `;
+  window.scrollTo({ top: 0, behavior: "smooth" });
+  history.pushState({ postId: id }, "", "#post-" + id);
+}
+
+function closePost() {
+  document.getElementById("blogPostView").style.display = "none";
+  document.getElementById("blogListView").style.display = "block";
+  history.pushState({}, "", "blog.html");
+}
+
+document.getElementById("backToBlogBtn").addEventListener("click", (e) => {
+  e.preventDefault();
+  closePost();
+});
+
+async function loadPosts() {
+  try {
+    await waitForAuthReady();
+    allPosts = await window.DeenpathAuth.fetchPublishedPosts();
+    renderBlogFilters();
+    renderBlogGrid();
+
+    // URL hash দিয়ে সরাসরি কোনো পোস্ট খোলা থাকলে
+    const hash = window.location.hash;
+    if (hash.startsWith("#post-")) {
+      const id = hash.replace("#post-", "");
+      if (allPosts.find(p => p.id === id)) openPost(id);
+    }
+  } catch (err) {
+    console.error("Blog load error:", err);
+    document.getElementById("blogGrid").innerHTML = `
+      <div class="empty-state" style="grid-column:1/-1;">
+        <div class="icon">⚠️</div>
+        <p>লেখা লোড করা যাচ্ছে না। কিছুক্ষণ পর আবার চেষ্টা করুন।</p>
+      </div>`;
+  }
+}
+
+loadPosts();
+</script>
+</body>
+</html>

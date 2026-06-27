@@ -17,7 +17,7 @@ const NAV_LINKS = [
   { href: "articles.html", label: "প্রবন্ধ" },
   { href: "blog.html", label: "ব্লগ" },
   { href: "zakat.html", label: "যাকাত ক্যালকুলেটর" },
-  { href: "donation.html", label: "ডোনেশন" },
+  { href: "donation.html", label: "কেনাকাটা" },
 ];
 
 function currentPage() {

@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5">
+<title>ডোনেশন — দ্বীনপথের সাথী হোন | দ্বীনপথ</title>
+<meta name="description" content="দ্বীনপথের সাদাকায়ে জারিয়াহ কার্যক্রমে অংশ নিন। bKash, Nagad ও ব্যাংক একাউন্টের মাধ্যমে দান করুন।">
+<meta name="theme-color" content="#0b3024">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Tiro+Bangla:ital@0;1&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<style>
+  .donate-hero .verse {
+    font-family: var(--font-display);
+    color: var(--gold-300);
+    font-size: 1.05rem;
+    margin-top: 14px;
+  }
+  .donate-intent-note {
+    max-width: 640px; margin: 36px auto 0; text-align: center;
+    background: var(--tint-green); border-radius: var(--radius-md);
+    padding: 18px 24px; color: var(--green-800); font-size: 0.9rem; line-height: 1.8;
+  }
+</style>
+</head>
+<body>
+
+<section class="page-hero">
+  <div class="octagon-pattern"></div>
+  <div class="container">
+    <div class="breadcrumb"><a href="index.html">হোম</a> / ডোনেশন</div>
+    <h1>🤲 দ্বীনপথের সাথী হোন</h1>
+    <p>আপনার সাদাকাহর মাধ্যমে দ্বীনপথের অগ্রযাত্রা অব্যাহত রাখুন — কুরআন, হাদীস, নামাজের সময় ও দ্বীনি শিক্ষা বিনামূল্যে সবার কাছে পৌঁছে দিতে আপনার সহায়তা প্রয়োজন।</p>
+  </div>
+</section>
+
+<section class="section-tight">
+  <div class="container">
+    <div class="donate-hero">
+      <div class="verse">"যে ব্যক্তি একটি ভালো কাজের সূচনা করে, সে তার সওয়াব এবং পরবর্তীতে তা অনুসরণকারীদের সওয়াবও পাবে।"</div>
+      <p style="color:var(--ink-500); font-size:0.85rem; margin-top:8px;">— সহীহ মুসলিম</p>
+    </div>
+
+    <div class="donate-method-grid">
+      <div class="donate-card bkash">
+        <div class="dicon">bK</div>
+        <h3>বিকাশ</h3>
+        <div class="dsub">Send Money অপশনে পাঠান</div>
+        <span class="donate-type-tag">পার্সোনাল নাম্বার</span>
+        <div class="donate-number-row" style="margin-top:16px;">
+          <span id="bkashNumber">০১৬০১-৭৬১৫৬৪</span>
+          <button class="copy-icon-btn" data-copy="01601761564" aria-label="নাম্বার কপি করুন">📋</button>
+        </div>
+      </div>
+
+      <div class="donate-card nagad">
+        <div class="dicon">N</div>
+        <h3>নগদ</h3>
+        <div class="dsub">Send Money অপশনে পাঠান</div>
+        <span class="donate-type-tag">পার্সোনাল নাম্বার</span>
+        <div class="donate-number-row" style="margin-top:16px;">
+          <span id="nagadNumber">০১৬০১-৭৬১৫৬৪</span>
+          <button class="copy-icon-btn" data-copy="01601761564" aria-label="নাম্বার কপি করুন">📋</button>
+        </div>
+      </div>
+
+      <div class="donate-card bank">
+        <div class="dicon">🏦</div>
+        <h3>ব্যাংক ট্রান্সফার</h3>
+        <div class="dsub">সরাসরি একাউন্টে জমা দিন</div>
+        <div class="donate-bank-details">
+          <div><b>একাউন্ট নাম:</b> দ্বীনপথ ফাউন্ডেশন</div>
+          <div><b>একাউন্ট নাম্বার:</b> <span id="bankAccNumber">২০১০১০১৬৭৫৪</span></div>
+          <div><b>ব্যাংক:</b> ইসলামী ব্যাংক বাংলাদেশ পিএলসি</div>
+          <div><b>ব্রাঞ্চ:</b> কিশোরগঞ্জ শাখা</div>
+          <div><b>রাউটিং নাম্বার:</b> ১২৫২৭৬০৪২</div>
+        </div>
+        <button class="btn btn-outline btn-sm btn-block" style="margin-top:14px;" data-copy="2010101675412527604042 — ইসলামী ব্যাংক বাংলাদেশ পিএলসি, কিশোরগঞ্জ শাখা">সম্পূর্ণ তথ্য কপি করুন</button>
+      </div>
+    </div>
+
+    <div class="donate-intent-note">
+      💡 দান করার সময় <b>রেফারেন্স</b>-এ "দ্বীনপথ" লিখে দিলে আমরা সহজে শনাক্ত করতে পারব। কোনো প্রশ্ন থাকলে ফুটারের যোগাযোগ নাম্বারে হোয়াটসঅ্যাপ করুন।
+    </div>
+  </div>
+</section>
+
+<script src="data.js"></script>
+<script src="common.js"></script>
+<script type="module" src="firebase-config.js"></script>
+<script>
+document.querySelectorAll("[data-copy]").forEach(btn => {
+  btn.addEventListener("click", async () => {
+    const text = btn.getAttribute("data-copy");
+    try {
+      await navigator.clipboard.writeText(text);
+      showToast("কপি হয়েছে");
+    } catch (err) {
+      showToast("কপি করা যায়নি, ম্যানুয়ালি লিখে নিন");
+    }
+  });
+});
+</script>
+</body>
+</html>

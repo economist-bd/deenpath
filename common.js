@@ -16,6 +16,7 @@ const NAV_LINKS = [
   { href: "dua.html", label: "দু'আ" },
   { href: "articles.html", label: "প্রবন্ধ" },
   { href: "zakat.html", label: "যাকাত ক্যালকুলেটর" },
+  { href: "donation.html", label: "ডোনেশন" },
 ];
 
 function currentPage() {
@@ -40,7 +41,10 @@ function renderHeader() {
       </a>
       <nav class="main-nav" id="mainNav">${navHtml}</nav>
       <div class="header-actions">
-        <a href="prayer-times.html" class="btn btn-outline btn-sm" style="display:none" id="headerPrayerBtn">নামাজের সময়</a>
+        <a href="donation.html" class="btn btn-primary btn-sm donation-cta">দান করুন</a>
+        <div class="auth-slot-wrap">
+          <div id="authSlot"></div>
+        </div>
         <button class="nav-toggle" id="navToggle" aria-label="মেনু খুলুন">☰</button>
       </div>
     </div>
@@ -79,7 +83,7 @@ function renderFooter() {
             <li><a href="dua.html">দৈনন্দিন দু'আ</a></li>
             <li><a href="articles.html">প্রবন্ধ ও নিবন্ধ</a></li>
             <li><a href="zakat.html">যাকাত ক্যালকুলেটর</a></li>
-            <li><a href="#" id="footerInstallLink">অ্যাপ ডাউনলোড</a></li>
+            <li><a href="donation.html">ডোনেশন করুন</a></li>
           </ul>
         </div>
         <div class="footer-col">

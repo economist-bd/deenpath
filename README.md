@@ -14,10 +14,41 @@ deenpath/
 ├── dua.html             → দু'আ সংগ্রহ (ক্যাটাগরি অনুযায়ী)
 ├── articles.html        → প্রবন্ধ (ফিল্টারযোগ্য গ্রিড)
 ├── zakat.html           → যাকাত ক্যালকুলেটর (লাইভ হিসাব)
+├── donation.html        → ডোনেশন (bKash/Nagad/ব্যাংক তথ্য, কপি বাটন)
 ├── style.css            → সম্পূর্ণ ডিজাইন সিস্টেম (একক ফাইল)
 ├── common.js            → হেডার/ফুটার/টোস্ট/ক্যাশ হেল্পার (সব পেজে শেয়ার করা)
+├── firebase-config.js   → Firebase Auth (Google Sign-In) + Firestore ইউজার প্রোফাইল
 └── data.js              → স্থির ডেটা (সূরা তালিকা, হাদীস, জেলা কোঅর্ডিনেট)
 ```
+
+## Firebase ইন্টিগ্রেশন
+
+প্রজেক্ট: **deenpath-4e575** (Firebase Console-এ ইতিমধ্যে সেটআপ করা)
+
+- **Authentication** — শুধু Google সাইন-ইন (পপআপ পদ্ধতি)। হেডারের ডান পাশে বাটন থাকে; লগইন করলে নাম + প্রোফাইল ছবি দেখায় ও ড্রপডাউনে লগ-আউট অপশন আসে।
+- **Firestore** — লগইন করার সাথে সাথে `users/{uid}` ডকুমেন্টে নাম, ইমেইল, ছবি ও lastLogin সেভ হয় (merge মোডে, তাই বিদ্যমান ডেটা মুছে যায় না)।
+- সব পেজে `<script type="module" src="firebase-config.js"></script>` যুক্ত করা আছে — `common.js`-এর পরে লোড হয় যাতে হেডারের `#authSlot` ডিভ আগে তৈরি থাকে।
+
+### Firebase Console-এ যা সক্রিয় করতে হবে (যদি না থাকে)
+1. **Authentication → Sign-in method → Google** চালু করুন।
+2. **Authentication → Settings → Authorized domains**-এ আপনার ডিপ্লয়মেন্ট ডোমেইন (যেমন `economist-bd.github.io` বা আপনার Vercel ডোমেইন) যুক্ত করুন — নাহলে পপআপ লগইন কাজ করবে না।
+3. **Firestore Database** তৈরি করা থাকতে হবে (production মোডে), এবং নিচের মতো একটা বেসিক সিকিউরিটি রুল রাখুন:
+   ```
+   rules_version = '2';
+   service cloud.firestore {
+     match /databases/{database}/documents {
+       match /users/{userId} {
+         allow read, write: if request.auth != null && request.auth.uid == userId;
+       }
+     }
+   }
+   ```
+
+## ডোনেশন পেজ
+
+`donation.html` — কোনো ফর্ম নেই, শুধু bKash, Nagad ও ব্যাংক একাউন্টের তথ্য কার্ড আকারে দেখায়, প্রতিটাতে এক-ক্লিক কপি বাটন। নাম্বার/একাউন্ট তথ্য পরিবর্তন করতে চাইলে `donation.html` ফাইলে সরাসরি এডিট করুন (`bkashNumber`, `nagadNumber`, `bankAccNumber` ইত্যাদি আইডি খুঁজুন)।
+
+
 
 ## ব্যবহৃত API (সবগুলো ফ্রি, কী-বিহীন, CORS-ওপেন)
 

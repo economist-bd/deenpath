@@ -42,7 +42,7 @@ function renderHeader() {
       </a>
       <nav class="main-nav" id="mainNav">${navHtml}</nav>
       <div class="header-actions">
-        <a href="donation.html" class="btn btn-primary btn-sm donation-cta">দান করুন</a>
+        <a href="donation.html" class="btn btn-primary btn-sm donation-cta">কেনাকাটা</a>
         <div class="auth-slot-wrap">
           <div id="authSlot"></div>
         </div>

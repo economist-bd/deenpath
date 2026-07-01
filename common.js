@@ -17,8 +17,7 @@ const NAV_LINKS = [
   { href: "articles.html", label: "প্রবন্ধ" },
   { href: "blog.html", label: "ব্লগ" },
   { href: "zakat.html", label: "যাকাত ক্যালকুলেটর" },
-  { href: "donation.html", label: "কেনাকাটা" },
-  { href: "https://muslimponno.vercel.app/", label: "মুসলিম পণ্য" },
+   { href: "https://muslimponno.vercel.app/", label: "মুসলিম পণ্য" },
 ];
 
 function currentPage() {
@@ -43,7 +42,7 @@ function renderHeader() {
       </a>
       <nav class="main-nav" id="mainNav">${navHtml}</nav>
       <div class="header-actions">
-        <a href="donation.html" class="btn btn-primary btn-sm donation-cta">কেনাকাটা</a>
+        <a href="https://muslimponno.vercel.app/" class="btn btn-primary btn-sm donation-cta">কেনাকাটা</a>
         <div class="auth-slot-wrap">
           <div id="authSlot"></div>
         </div>

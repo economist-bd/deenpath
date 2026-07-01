@@ -18,6 +18,7 @@ const NAV_LINKS = [
   { href: "blog.html", label: "ব্লগ" },
   { href: "zakat.html", label: "যাকাত ক্যালকুলেটর" },
   { href: "donation.html", label: "কেনাকাটা" },
+  { href: "https://muslimponno.vercel.app/", label: "মুসলিম পণ্য" },
 ];
 
 function currentPage() {
